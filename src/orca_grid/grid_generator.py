@@ -39,20 +39,58 @@ class ORCAGridGenerator:
             "1deg": {
                 "nx": 360,      # Zonal points
                 "ny": 331,      # Meridional points  
+                "nz": 75,       # Vertical levels
                 "equator_lat": 0.0,  # Equator latitude
                 "npole_lat": 80.0,   # Approximate north pole latitude
                 "npole_lon": -60.0,  # North pole longitude (Canada)
                 "spole_lat": -80.0,  # South pole latitude
-                "spole_lon": 120.0   # South pole longitude (Russia)
+                "spole_lon": 120.0,  # South pole longitude (Russia)
+                "jpiglo": 362,      # Global zonal dimension
+                "jpjglo": 332,      # Global meridional dimension
+                "jpkglo": 75,       # Global vertical dimension
+                "jperio": 6         # Lateral boundary condition
             },
             "0.5deg": {
                 "nx": 720,
                 "ny": 661,
+                "nz": 75,
                 "equator_lat": 0.0,
                 "npole_lat": 80.0,
                 "npole_lon": -60.0,
                 "spole_lat": -80.0,
-                "spole_lon": 120.0
+                "spole_lon": 120.0,
+                "jpiglo": 722,
+                "jpjglo": 662,
+                "jpkglo": 75,
+                "jperio": 6
+            },
+            "0.25deg": {
+                "nx": 1440,
+                "ny": 1321,
+                "nz": 75,
+                "equator_lat": 0.0,
+                "npole_lat": 80.0,
+                "npole_lon": -60.0,
+                "spole_lat": -80.0,
+                "spole_lon": 120.0,
+                "jpiglo": 1442,
+                "jpjglo": 1322,
+                "jpkglo": 75,
+                "jperio": 6
+            },
+            "2deg": {
+                "nx": 180,
+                "ny": 161,
+                "nz": 31,
+                "equator_lat": 0.0,
+                "npole_lat": 80.0,
+                "npole_lon": -60.0,
+                "spole_lat": -80.0,
+                "spole_lon": 120.0,
+                "jpiglo": 182,
+                "jpjglo": 162,
+                "jpkglo": 31,
+                "jperio": 6
             }
         }
         return params.get(self.resolution, params["1deg"])

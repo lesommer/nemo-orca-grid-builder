@@ -40,6 +40,39 @@ class NEMONetCDFWriter:
                 "jperio": 6,    # Lateral boundary condition flag
                 "orca": 1,      # ORCA grid family
                 "orca_index": 1 # Specific ORCA configuration
+            },
+            "0.5deg": {
+                "nx": 720,
+                "ny": 661,
+                "nz": 75,
+                "jpiglo": 722,
+                "jpjglo": 662,
+                "jpkglo": 75,
+                "jperio": 6,
+                "orca": 1,
+                "orca_index": 2
+            },
+            "0.25deg": {
+                "nx": 1440,
+                "ny": 1321,
+                "nz": 75,
+                "jpiglo": 1442,
+                "jpjglo": 1322,
+                "jpkglo": 75,
+                "jperio": 6,
+                "orca": 1,
+                "orca_index": 3
+            },
+            "2deg": {
+                "nx": 180,
+                "ny": 161,
+                "nz": 31,
+                "jpiglo": 182,
+                "jpjglo": 162,
+                "jpkglo": 31,
+                "jperio": 6,
+                "orca": 1,
+                "orca_index": 4
             }
         }
         return params.get(self.resolution, params["1deg"])
@@ -88,19 +121,17 @@ class NEMONetCDFWriter:
             }
         )
         
-        # Add global attributes specific to NEMO
-        ds.attrs.update({
-            'ORCA': params["orca"],
-            'ORCA_index': params["orca_index"],
-            'jpiglo': params["jpiglo"],
-            'jpjglo': params["jpjglo"],
-            'jpkglo': params["jpkglo"],
-            'jperio': params["jperio"],
-            'ln_zco': 0,           # z-coordinate flag
-            'ln_zps': 1,           # partial steps flag  
-            'ln_sco': 0,           # s-coordinate flag
-            'ln_isfcav': 0         # ice shelf cavities flag
-        })
+        # Add scalar variables for NEMO configuration
+        ds['ORCA'] = params["orca"]
+        ds['ORCA_index'] = params["orca_index"]
+        ds['jpiglo'] = params["jpiglo"]
+        ds['jpjglo'] = params["jpjglo"]
+        ds['jpkglo'] = params["jpkglo"]
+        ds['jperio'] = params["jperio"]
+        ds['ln_zco'] = 0           # z-coordinate flag
+        ds['ln_zps'] = 1           # partial steps flag  
+        ds['ln_sco'] = 0           # s-coordinate flag
+        ds['ln_isfcav'] = 0         # ice shelf cavities flag
         
         # Add coordinate variables
         if 'nav_lon' in grid_data and 'nav_lat' in grid_data:
