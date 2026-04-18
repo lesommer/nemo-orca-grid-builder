@@ -117,7 +117,7 @@ def generate_all_plots():
     os.makedirs('output/plots', exist_ok=True)
     
     # Plot each resolution
-    for res in ['2deg', '1deg', '0.5deg']:
+    for res in ['2deg', '1deg']:
         grid_file = f'output/grids/{res}_grid.nc'
         if os.path.exists(grid_file):
             print(f"  Processing {res} grid...")

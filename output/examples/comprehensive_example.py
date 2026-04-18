@@ -132,13 +132,16 @@ def main():
     print("\n6. Multiple Resolution Support")
     print("-" * 30)
     
-    resolutions = ["2deg", "1deg", "0.5deg", "0.25deg"]
+    # Only generate essential resolutions to keep repository lightweight
+    resolutions = ["2deg", "1deg"]
     for res in resolutions:
         try:
             builder_res = ORCAGridBuilder(resolution=res)
             grid_res = builder_res.generate_grid()
             shape = grid_res['gphit'].shape
             print(f"  {res}: {shape[1]}×{shape[2]} grid generated successfully")
+            # Write only essential files
+            builder_res.write_netcdf(f"output/grids/{res}_grid.nc")
         except Exception as e:
             print(f"  {res}: Error - {e}")
     

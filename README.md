@@ -266,7 +266,7 @@ The library includes visualization tools to inspect the generated grids:
 ### Resolution Comparison
 
 ![Grid Comparison](output/plots/grid_comparison.png)
-*Comparison of different ORCA grid resolutions (2°, 1°, 0.5°)*
+*Comparison of 1° and 2° ORCA grid resolutions*
 
 ### Generating Your Own Plots
 
