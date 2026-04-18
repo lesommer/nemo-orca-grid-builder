@@ -1,0 +1,238 @@
+{
+  "dimensions": {
+    "y": {
+      "generated": 331,
+      "reference": 331,
+      "match": true
+    },
+    "x": {
+      "generated": 360,
+      "reference": 360,
+      "match": true
+    },
+    "z": {
+      "generated": 75,
+      "reference": 75,
+      "match": true
+    },
+    "t": {
+      "generated": 1,
+      "reference": 1,
+      "match": true
+    }
+  },
+  "global_attributes": {},
+  "variables": {
+    "nav_lon": {
+      "dims_match": true,
+      "shape_match": true,
+      "generated_dims": [
+        "y",
+        "x"
+      ],
+      "reference_dims": [
+        "y",
+        "x"
+      ],
+      "generated_shape": [
+        331,
+        360
+      ],
+      "reference_shape": [
+        331,
+        360
+      ]
+    },
+    "nav_lat": {
+      "dims_match": true,
+      "shape_match": true,
+      "generated_dims": [
+        "y",
+        "x"
+      ],
+      "reference_dims": [
+        "y",
+        "x"
+      ],
+      "generated_shape": [
+        331,
+        360
+      ],
+      "reference_shape": [
+        331,
+        360
+      ]
+    },
+    "nav_lev": {
+      "dims_match": true,
+      "shape_match": true,
+      "generated_dims": [
+        "z"
+      ],
+      "reference_dims": [
+        "z"
+      ],
+      "generated_shape": [
+        75
+      ],
+      "reference_shape": [
+        75
+      ]
+    },
+    "glamt": {
+      "dims_match": true,
+      "shape_match": true,
+      "generated_dims": [
+        "t",
+        "y",
+        "x"
+      ],
+      "reference_dims": [
+        "t",
+        "y",
+        "x"
+      ],
+      "generated_shape": [
+        1,
+        331,
+        360
+      ],
+      "reference_shape": [
+        1,
+        331,
+        360
+      ]
+    },
+    "gphit": {
+      "dims_match": true,
+      "shape_match": true,
+      "generated_dims": [
+        "t",
+        "y",
+        "x"
+      ],
+      "reference_dims": [
+        "t",
+        "y",
+        "x"
+      ],
+      "generated_shape": [
+        1,
+        331,
+        360
+      ],
+      "reference_shape": [
+        1,
+        331,
+        360
+      ]
+    },
+    "e1t": {
+      "dims_match": true,
+      "shape_match": true,
+      "generated_dims": [
+        "t",
+        "y",
+        "x"
+      ],
+      "reference_dims": [
+        "t",
+        "y",
+        "x"
+      ],
+      "generated_shape": [
+        1,
+        331,
+        360
+      ],
+      "reference_shape": [
+        1,
+        331,
+        360
+      ]
+    },
+    "e2t": {
+      "dims_match": true,
+      "shape_match": true,
+      "generated_dims": [
+        "t",
+        "y",
+        "x"
+      ],
+      "reference_dims": [
+        "t",
+        "y",
+        "x"
+      ],
+      "generated_shape": [
+        1,
+        331,
+        360
+      ],
+      "reference_shape": [
+        1,
+        331,
+        360
+      ]
+    }
+  },
+  "errors": [],
+  "warnings": [],
+  "scalar_variables": {
+    "ORCA": {
+      "generated": 1,
+      "reference": 1,
+      "match": true
+    },
+    "ORCA_index": {
+      "generated": 1,
+      "reference": 1,
+      "match": true
+    },
+    "jpiglo": {
+      "generated": 362,
+      "reference": 362,
+      "match": true
+    },
+    "jpjglo": {
+      "generated": 332,
+      "reference": 332,
+      "match": true
+    },
+    "jpkglo": {
+      "generated": 75,
+      "reference": 75,
+      "match": true
+    },
+    "jperio": {
+      "generated": 6,
+      "reference": 6,
+      "match": true
+    }
+  },
+  "coordinate_ranges": {
+    "longitude": {
+      "generated": [
+        -179.9544219970703,
+        179.45327758789062
+      ],
+      "reference": [
+        -179.9965362548828,
+        179.9903106689453
+      ],
+      "ok": true
+    },
+    "latitude": {
+      "generated": [
+        85.05680084228516,
+        85.0569839477539
+      ],
+      "reference": [
+        -85.78874206542969,
+        89.74176788330078
+      ],
+      "ok": false
+    }
+  },
+  "validation_passed": true
+}
