@@ -244,28 +244,28 @@ The library includes visualization tools to inspect the generated grids:
 
 ### Grid Structure Plots
 
-![1° Grid Longitude](plots/1deg_grid_lon.png)
+![1° Grid Longitude](output/plots/1deg_grid_lon.png)
 *Longitude coordinates for 1° ORCA grid*
 
-![1° Grid Latitude](plots/1deg_grid_lat.png)  
+![1° Grid Latitude](output/plots/1deg_grid_lat.png)  
 *Latitude coordinates for 1° ORCA grid*
 
 ### Scale Factor Plots
 
-![1° Scale Factor e1t](plots/1deg_scale_factors_e1t.png)
+![1° Scale Factor e1t](output/plots/1deg_scale_factors_e1t.png)
 *Zonal scale factors for 1° ORCA grid*
 
-![1° Scale Factor e2t](plots/1deg_scale_factors_e2t.png)
+![1° Scale Factor e2t](output/plots/1deg_scale_factors_e2t.png)
 *Meridional scale factors for 1° ORCA grid*
 
 ### Staggered Grid Points
 
-![Arakawa C-Grid](plots/staggered_points.png)
+![Arakawa C-Grid](output/plots/staggered_points.png)
 *Arakawa C-grid staggered points (T, U, V, F)*
 
 ### Resolution Comparison
 
-![Grid Comparison](plots/grid_comparison.png)
+![Grid Comparison](output/plots/grid_comparison.png)
 *Comparison of different ORCA grid resolutions (2°, 1°, 0.5°)*
 
 ### Generating Your Own Plots
@@ -274,8 +274,8 @@ The library includes visualization tools to inspect the generated grids:
 from orca_grid.plotting import plot_grid_structure, plot_scale_factors
 
 # Plot a specific grid
-plot_grid_structure('my_grid.nc', 'My ORCA Grid', 'my_grid_plot')
-plot_scale_factors('my_grid.nc', 'My ORCA Grid', 'my_scale_factors')
+plot_grid_structure('output/grids/my_grid.nc', 'My ORCA Grid', 'output/plots/my_grid_plot')
+plot_scale_factors('output/grids/my_grid.nc', 'My ORCA Grid', 'output/plots/my_scale_factors')
 ```
 
 The plots help visualize:
