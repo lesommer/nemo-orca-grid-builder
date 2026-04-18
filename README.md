@@ -237,3 +237,50 @@ For issues and questions, please open a GitHub issue or contact the maintainers.
 - More ocean model adapters
 - Performance optimization
 - Web interface for grid generation
+
+## Visualization
+
+The library includes visualization tools to inspect the generated grids:
+
+### Grid Structure Plots
+
+![1° Grid Longitude](plots/1deg_grid_lon.png)
+*Longitude coordinates for 1° ORCA grid*
+
+![1° Grid Latitude](plots/1deg_grid_lat.png)  
+*Latitude coordinates for 1° ORCA grid*
+
+### Scale Factor Plots
+
+![1° Scale Factor e1t](plots/1deg_scale_factors_e1t.png)
+*Zonal scale factors for 1° ORCA grid*
+
+![1° Scale Factor e2t](plots/1deg_scale_factors_e2t.png)
+*Meridional scale factors for 1° ORCA grid*
+
+### Staggered Grid Points
+
+![Arakawa C-Grid](plots/staggered_points.png)
+*Arakawa C-grid staggered points (T, U, V, F)*
+
+### Resolution Comparison
+
+![Grid Comparison](plots/grid_comparison.png)
+*Comparison of different ORCA grid resolutions (2°, 1°, 0.5°)*
+
+### Generating Your Own Plots
+
+```python
+from orca_grid.plotting import plot_grid_structure, plot_scale_factors
+
+# Plot a specific grid
+plot_grid_structure('my_grid.nc', 'My ORCA Grid', 'my_grid_plot')
+plot_scale_factors('my_grid.nc', 'My ORCA Grid', 'my_scale_factors')
+```
+
+The plots help visualize:
+- Grid coordinate systems
+- Scale factor distributions
+- Staggered point locations
+- Resolution differences
+- Grid quality and orthogonality

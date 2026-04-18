@@ -24,5 +24,6 @@ Usage:
 """
 
 from .__main__ import ORCAGridBuilder
+from .plotting import plot_grid_structure, plot_scale_factors, plot_staggered_points
 
-__all__ = ['ORCAGridBuilder']
+__all__ = ['ORCAGridBuilder', 'plot_grid_structure', 'plot_scale_factors', 'plot_staggered_points']
