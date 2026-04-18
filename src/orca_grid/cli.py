@@ -17,20 +17,35 @@ def main():
     # Parse command line arguments
     resolution = "1deg"  # Default resolution
     output_file = "domain_cfg.nc"  # Default output
+    use_jax = False  # Default to CPU
     
-    if len(sys.argv) > 1:
-        resolution = sys.argv[1]
-    if len(sys.argv) > 2:
-        output_file = sys.argv[2]
+    # Simple argument parsing
+    args = sys.argv[1:]
     
-    print(f"Generating ORCA grid at {resolution} resolution...")
+    for i, arg in enumerate(args):
+        if arg in ['--jax', '-j']:
+            use_jax = True
+        elif arg in ['--cpu', '-c']:
+            use_jax = False
+        elif arg in ['1deg', '0.5deg', '0.25deg']:
+            resolution = arg
+        elif arg.endswith('.nc'):
+            output_file = arg
+        elif i == 0 and arg not in ['--jax', '-j', '--cpu', '-c']:
+            resolution = arg
+        elif i == 1 and arg not in ['--jax', '-j', '--cpu', '-c']:
+            output_file = arg
+    
+    # Determine device
+    device = "GPU" if use_jax else "CPU"
+    print(f"Generating ORCA grid at {resolution} resolution using {device}...")
     
     # Create and run grid builder
     builder = ORCAGridBuilder(resolution=resolution)
-    result = builder.write_netcdf(output_file)
+    result = builder.write_netcdf(output_file, use_jax=use_jax)
     
     print(f"Successfully created {result}")
-    print("Grid generation complete!")
+    print(f"Grid generation complete using {device}!")
 
 if __name__ == "__main__":
     main()
