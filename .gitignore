@@ -205,3 +205,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Large binary files that exceed GitHub's 100MB limit
+# These files can be generated using the provided scripts
+output/grids/*.nc
+data/domain_cfg.nc
+output/validation/*.json
