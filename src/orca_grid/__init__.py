@@ -4,10 +4,9 @@ ORCA Grid Builder
 This module implements the ORCA grid generation algorithm based on Madec & Imbard (1996).
 
 Core Components:
-- grid_generator.py: Main grid generation algorithms
+- grid_builder.py: Main grid generation algorithms
+- reference_algorithm.py: Reference algorithm implementation
 - stereographic.py: Stereographic projection utilities
--   
-- 
 - netcdf_writer.py: NetCDF file output
 
 Mathematical Foundation:
