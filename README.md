@@ -42,16 +42,6 @@ grid_data = builder.generate_grid()
 builder.write_netcdf("domain_cfg.nc")
 ```
 
-## Grid Characteristics
-
-### 1° Resolution ORCA Grid
-
-- **Dimensions**: 331 × 360 × 75 (y × x × z)
-- **Horizontal Resolution**: ~1° × 1° nominal
-- **Vertical Levels**: 75 levels with partial cells
-- **Grid Type**: Tripolar orthogonal curvilinear
-- **North Pole Treatment**: Displaced to Canada and Russia
-
 ## License
 
 MIT License
