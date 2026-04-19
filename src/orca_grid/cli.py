@@ -11,7 +11,7 @@ Examples:
 """
 
 import sys
-from . import ORCAGridBuilder
+from .grid_builder import ORCAGridBuilder
 
 def main():
     # Parse command line arguments
