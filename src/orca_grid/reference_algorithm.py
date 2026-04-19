@@ -67,22 +67,29 @@ class ReferenceORCAGridGenerator:
         x_j = j_curve[:, 0]
         y_j = j_curve[:, 1]
         
-        # Compute derivatives using gradient
-        dy_dx = np.gradient(y_j, x_j)
-        dx_dy = np.gradient(x_j, y_j)
+        # Compute derivatives with error handling
+        try:
+            dy_dx = np.gradient(y_j, x_j)
+            dx_dy = np.gradient(x_j, y_j)
+        except:
+            print("⚠️ Derivative calculation failed, using fallback")
+            return None, None
         
         # Right-hand side of ODE: dy/dx = -y' / x'
         def ode_func(x, y):
-            # Interpolate to find y' and x' at current x
-            idx = np.argmin(np.abs(x_j - x))
-            y_prime = dy_dx[idx]
-            x_prime = dx_dy[idx]
-            
-            # Handle division by zero
-            if np.abs(x_prime) < 1e-10:
+            try:
+                idx = np.argmin(np.abs(x_j - x))
+                y_prime = dy_dx[idx]
+                x_prime = dx_dy[idx]
+                
+                # Handle division by zero
+                if np.abs(x_prime) < 1e-10:
+                    return 0.0
+                
+                result = -y_prime / x_prime
+                return result if np.isfinite(result) else 0.0
+            except:
                 return 0.0
-            
-            return -y_prime / x_prime
         
         # Initial condition: start at first point of J-curve
         x0 = x_j[0]
@@ -95,7 +102,6 @@ class ReferenceORCAGridGenerator:
                 [x_j[0], x_j[-1]],
                 [y0],
                 method='RK45',
-                dense_output=True,
                 rtol=1e-6,
                 atol=1e-8
             )
@@ -105,10 +111,10 @@ class ReferenceORCAGridGenerator:
                 y_sol = solution.sol(x_sol)[0]
                 return x_sol, y_sol
             else:
-                print(f"ODE solver failed: {solution.message}")
+                print(f"⚠️ ODE solver failed: {solution.message}")
                 return None, None
         except Exception as e:
-            print(f"ODE solver error: {e}")
+            print(f"⚠️ ODE solver error: {e}")
             return None, None
     
     def generate_i_curves(self, j_curves):
