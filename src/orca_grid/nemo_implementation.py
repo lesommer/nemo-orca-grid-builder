@@ -23,31 +23,20 @@ class NEMOGridGenerator(OceanGridGenerator):
         self.orca_generator = ORCAGridGenerator(resolution)
         self.netcdf_writer = NEMONetCDFWriter(resolution)
     
-    def generate_grid(self, use_jax=False):
+    def generate_grid(self):
         """
         Generate NEMO ORCA grid.
         
-        Args:
-            use_jax: Whether to use JAX optimization
-            
         Returns:
             grid_data: Dictionary containing NEMO grid data
         """
         # Generate the grid using the ORCA generator
-        if use_jax:
-            spherical_grid = self.orca_generator.generate_spherical_grid_jax()
-        else:
-            spherical_grid = self.orca_generator.generate_spherical_grid()
+        spherical_grid = self.orca_generator.generate_spherical_grid()
         
         # Calculate scale factors
-        if use_jax:
-            e1t, e2t = self.orca_generator.calculate_scale_factors_jax(
-                spherical_grid['lat_t'], spherical_grid['lon_t']
-            )
-        else:
-            e1t, e2t = self.orca_generator.calculate_scale_factors(
-                spherical_grid['lat_t'], spherical_grid['lon_t']
-            )
+        e1t, e2t = self.orca_generator.calculate_scale_factors(
+            spherical_grid['lat_t'], spherical_grid['lon_t']
+        )
         
         # Create NEMO-specific grid data structure
         grid_data = {

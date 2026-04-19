@@ -7,8 +7,6 @@ singularity by using a tripolar grid configuration.
 """
 
 import numpy as np
-import jax.numpy as jnp
-from jax import jit, grad
 from .stereographic import StereographicProjection
 
 class ORCAGridGenerator:
@@ -307,41 +305,7 @@ class ORCAGridGenerator:
             'y_polar': polar_grid['y_polar']
         }
     
-    def generate_spherical_grid_jax(self):
-        """
-        Generate the complete spherical grid using JAX for GPU acceleration.
-        
-        Returns:
-            grid: Dictionary containing spherical coordinates for all grid points
-        """
-        # Generate polar grid
-        polar_grid = self.generate_polar_grid()
-        
-        # Convert to spherical coordinates
-        lat_t, lon_t = self.polar_to_spherical(polar_grid['x_polar'], polar_grid['y_polar'])
-        
-        # Apply JAX-optimized tripolar adjustments
-        lat_t_jax = jnp.array(lat_t)
-        lon_t_jax = jnp.array(lon_t)
-        
-        lat_t_adjusted, lon_t_adjusted = self.jax_generate_tripolar_grid(lat_t_jax, lon_t_jax)
-        
-        lat_t = np.array(lat_t_adjusted)
-        lon_t = np.array(lon_t_adjusted)
-        
-        # Generate staggered grid points (U, V, F points) for Arakawa C-grid
-        lat_u, lon_u = self._generate_staggered_points(lat_t, lon_t, 'u')
-        lat_v, lon_v = self._generate_staggered_points(lat_t, lon_t, 'v')
-        lat_f, lon_f = self._generate_staggered_points(lat_t, lon_t, 'f')
-        
-        return {
-            'lat_t': lat_t, 'lon_t': lon_t,      # T-points (tracer points)
-            'lat_u': lat_u, 'lon_u': lon_u,      # U-points (zonal velocity)
-            'lat_v': lat_v, 'lon_v': lon_v,      # V-points (meridional velocity)
-            'lat_f': lat_f, 'lon_f': lon_f,      # F-points (vortex points)
-            'x_polar': polar_grid['x_polar'],
-            'y_polar': polar_grid['y_polar']
-        }
+
     
     def _generate_staggered_points(self, lat_t, lon_t, point_type):
         """
@@ -439,109 +403,5 @@ class ORCAGridGenerator:
         
         return e1, e2
     
-    def calculate_scale_factors_jax(self, lat, lon):
-        """
-        Calculate scale factors using JAX for GPU acceleration.
-        
-        Args:
-            lat: Latitude coordinates (2D array)
-            lon: Longitude coordinates (2D array)
-            
-        Returns:
-            (e1, e2): Zonal and meridional scale factors
-        """
-        # Convert to JAX arrays
-        lat_jax = jnp.array(lat)
-        lon_jax = jnp.array(lon)
-        
-        # Use JAX-optimized calculation
-        e1, e2 = self.jax_calculate_scale_factors(lat_jax)
-        
-        # Convert back to numpy arrays
-        return np.array(e1), np.array(e2)
+
     
-    @staticmethod
-    @jit
-    def jax_coriolis(lat):
-        """
-        Calculate Coriolis parameter using JAX for GPU acceleration.
-        
-        Args:
-            lat: Latitude in degrees
-            
-        Returns:
-            f: Coriolis parameter (s⁻¹)
-        """
-        omega = 7.2921e-5  # Earth's angular velocity (rad/s)
-        return 2 * omega * jnp.sin(jnp.deg2rad(lat))
-    
-    @staticmethod
-    @jit
-    def jax_calculate_scale_factors(lat):
-        """
-        Calculate scale factors using JAX for GPU acceleration.
-        
-        Args:
-            lat: Latitude coordinates (2D array)
-            
-        Returns:
-            (e1, e2): Zonal and meridional scale factors
-        """
-        R = 6371000.0  # Earth radius in meters
-        
-        # Calculate scale factors based on spherical geometry
-        lat_rad = jnp.deg2rad(lat)
-        
-        # Meridional scale factor (distance per degree latitude)
-        e2 = jnp.ones_like(lat) * (jnp.pi * R) / 180.0
-        
-        # Zonal scale factor (distance per degree longitude, varies with latitude)
-        e1 = e2 * jnp.cos(lat_rad)
-        
-        # Add anisotropy correction
-        anisotropy_target = 1.0
-        current_anisotropy = e1 / e2
-        correction = anisotropy_target / jnp.maximum(current_anisotropy, 0.1)
-        e1 = e1 * correction
-        
-        # Add realistic variation
-        uniform_factor = 1.0 + 0.2 * jnp.exp(-((lat - 45) / 30)**2)
-        e1 *= uniform_factor
-        e2 *= uniform_factor
-        
-        return e1, e2
-    
-    @staticmethod
-    @jit  
-    def jax_generate_tripolar_grid(lat, lon):
-        """
-        Apply tripolar adjustments to grid coordinates using JAX.
-        
-        Args:
-            lat: Latitude coordinates
-            lon: Longitude coordinates
-            
-        Returns:
-            (lat_adjusted, lon_adjusted): Adjusted coordinates with tripolar effect
-        """
-        # Create north fold effect using vectorized operations
-        north_mask = lat > 70
-        
-        # Calculate fold strength for all points
-        fold_strength = jnp.minimum(1.0, (lat - 70) / 20)
-        
-        # Create coordinate grids for vectorized calculation
-        ny, nx = lat.shape
-        i_grid, j_grid = jnp.meshgrid(jnp.arange(nx), jnp.arange(ny))
-        
-        # Calculate longitude adjustment
-        lon_adjustment = 30 * fold_strength * jnp.sin(2 * jnp.pi * i_grid / nx)
-        
-        # Apply adjustment only to northern points
-        lon_adjusted = jnp.where(north_mask, lon + lon_adjustment, lon)
-        lat_adjusted = lat  # Latitude remains the same
-        
-        # Ensure longitude stays within [-180, 180]
-        lon_adjusted = (lon_adjusted + 180) % 360 - 180
-        
-        return lat_adjusted, lon_adjusted

@@ -6,8 +6,6 @@ Madec & Imbard (1996) method for creating orthogonal curvilinear ocean meshes.
 """
 
 import numpy as np
-import jax.numpy as jnp
-from jax import jit
 
 class StereographicProjection:
     """
@@ -63,27 +61,3 @@ class StereographicProjection:
         
         return lat, lon
     
-    @staticmethod
-    @jit
-    def jax_forward(lat, lon, R=6371000.0):
-        """JAX-optimized forward projection for GPU acceleration."""
-        lat_rad = jnp.deg2rad(lat)
-        lon_rad = jnp.deg2rad(lon)
-        
-        k = 2 * R / (1 + jnp.sin(lat_rad))
-        x = k * jnp.cos(lat_rad) * jnp.cos(lon_rad)
-        y = k * jnp.cos(lat_rad) * jnp.sin(lon_rad)
-        
-        return x, y
-    
-    @staticmethod
-    @jit  
-    def jax_inverse(x, y, R=6371000.0):
-        """JAX-optimized inverse projection for GPU acceleration."""
-        rho = jnp.sqrt(x**2 + y**2)
-        c = 2 * jnp.arctan2(rho, 2 * R)
-        
-        lat = 90 - jnp.rad2deg(c)
-        lon = jnp.rad2deg(jnp.arctan2(y, x))
-        
-        return lat, lon

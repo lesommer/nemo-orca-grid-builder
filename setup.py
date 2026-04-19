@@ -22,9 +22,8 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "numpy>=1.19.0",
-        "jax>=0.2.10",
-        "jaxlib>=0.1.69",
         "xarray>=0.16.0",
+        "netCDF4>=1.5.7",
         "matplotlib>=3.3.0",
     ],
     entry_points={

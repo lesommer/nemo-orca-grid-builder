@@ -28,31 +28,20 @@ class ORCAGridBuilder:
         self.grid_generator = ORCAGridGenerator(resolution)
         self.netcdf_writer = NEMONetCDFWriter(resolution)
     
-    def generate_grid(self, use_jax=False):
+    def generate_grid(self):
         """
         Generate the complete ORCA grid with all staggered points.
         
-        Args:
-            use_jax: Whether to use JAX optimization for GPU acceleration
-            
         Returns:
             grid_data: Dictionary containing all grid data
         """
         # Generate spherical grid with all staggered points
-        if use_jax:
-            spherical_grid = self.grid_generator.generate_spherical_grid_jax()
-        else:
-            spherical_grid = self.grid_generator.generate_spherical_grid()
+        spherical_grid = self.grid_generator.generate_spherical_grid()
         
         # Calculate scale factors for T-points
-        if use_jax:
-            e1t, e2t = self.grid_generator.calculate_scale_factors_jax(
-                spherical_grid['lat_t'], spherical_grid['lon_t']
-            )
-        else:
-            e1t, e2t = self.grid_generator.calculate_scale_factors(
-                spherical_grid['lat_t'], spherical_grid['lon_t']
-            )
+        e1t, e2t = self.grid_generator.calculate_scale_factors(
+            spherical_grid['lat_t'], spherical_grid['lon_t']
+        )
         
         # Calculate scale factors for other point types (simplified for now)
         e1u, e2u = self._calculate_staggered_scale_factors(e1t, e2t, 'u')
@@ -122,19 +111,18 @@ class ORCAGridBuilder:
             e2f = np.hstack([e2f, e2f[:, -1:]])
             return e1f, e2f
     
-    def write_netcdf(self, filename="domain_cfg.nc", use_jax=False):
+    def write_netcdf(self, filename="domain_cfg.nc"):
         """
         Generate grid and write to NEMO-compliant NetCDF file.
         
         Args:
             filename: Output filename
-            use_jax: Whether to use JAX optimization
             
         Returns:
             filename: Path to created file
         """
         # Generate grid data
-        grid_data = self.generate_grid(use_jax=use_jax)
+        grid_data = self.generate_grid()
         
         # Write to NetCDF
         return self.netcdf_writer.write_netcdf(grid_data, filename)

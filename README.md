@@ -10,7 +10,7 @@ The ORCA Grid Builder implements the semi-analytical method described in Madec &
 
 - **NEMO ORCA Grid Generation**: Full implementation of the Madec & Imbard (1996) algorithm
 - **Multiple Resolutions**: Support for 1°, 0.5°, and other resolutions
-- **JAX Optimization**: GPU/CPU acceleration for fast grid generation
+- **Optimized NumPy Implementation**: Fast grid generation using vectorized operations
 - **Modular Architecture**: Easy extension to other ocean models (Veros, MOM6, etc.)
 - **NEMO Compliance**: Generates NetCDF files compatible with NEMO domain_cfg requirements
 - **Comprehensive Validation**: Built-in validation against reference grids
@@ -44,13 +44,13 @@ grid_data = builder.generate_grid()
 builder.write_netcdf("domain_cfg.nc")
 ```
 
-### Using JAX Optimization
+### CPU Optimization
 
 ```python
-# Generate grid using GPU acceleration
+# Generate grid using optimized CPU implementation
 builder = ORCAGridBuilder(resolution="1deg")
-grid_data = builder.generate_grid(use_jax=True)
-builder.write_netcdf("domain_cfg_gpu.nc", use_jax=True)
+grid_data = builder.generate_grid()
+builder.write_netcdf("domain_cfg.nc")
 ```
 
 ### Command Line Interface
@@ -58,9 +58,6 @@ builder.write_netcdf("domain_cfg_gpu.nc", use_jax=True)
 ```bash
 # Generate 1° grid
 python -m orca_grid 1deg my_grid.nc
-
-# Use GPU acceleration
-python -m orca_grid --jax 1deg gpu_grid.nc
 ```
 
 ## Modular Architecture
