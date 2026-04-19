@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Example script demonstrating ORCA grid builder usage.
+Basic usage example for ORCA Grid Builder.
 
-This script shows how to generate a 1° resolution ORCA grid
-and write it to a NEMO-compliant NetCDF file.
+NOTE: This example demonstrates basic functionality but may require
+additional setup or dependencies to run successfully.
 """
 
 import sys

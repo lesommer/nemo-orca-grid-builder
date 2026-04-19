@@ -1,4 +1,9 @@
-"""Grid validation example."""
+"""
+Grid validation example.
+
+NOTE: This example demonstrates validation functionality but may require
+additional setup or dependencies to run successfully.
+"""
 from orca_grid import ORCAGridBuilder
 from orca_grid.validate_grid import validate_grid
 

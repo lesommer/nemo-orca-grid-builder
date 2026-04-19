@@ -1,4 +1,9 @@
-"""Performance comparison example."""
+"""
+Performance comparison example.
+
+NOTE: This example demonstrates performance testing but may require
+additional setup or dependencies to run successfully.
+"""
 import time
 from orca_grid import ORCAGridBuilder
 

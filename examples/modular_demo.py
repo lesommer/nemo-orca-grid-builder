@@ -1,4 +1,9 @@
-"""Modular architecture demonstration."""
+"""
+Modular architecture demonstration.
+
+NOTE: This example demonstrates the modular architecture but may require
+additional setup or dependencies to run successfully.
+"""
 from orca_grid.modular_factory import UnifiedGridBuilder
 
 def demonstrate_modular_architecture():
