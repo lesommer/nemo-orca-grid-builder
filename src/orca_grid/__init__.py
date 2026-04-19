@@ -22,7 +22,7 @@ Usage:
     builder.write_netcdf("domain_cfg.nc")
 """
 
-from .grid_builder import ORCAGridBuilder
+from .grid_builder import ORCAGridGenerator as ORCAGridBuilder
 from .plotting import plot_grid_structure, plot_scale_factors, plot_staggered_points
 from .validate_grid import validate_grid
 
