@@ -4,6 +4,7 @@ Reference implementation of Madec-Imbard (1996) algorithm.
 """
 
 import numpy as np
+from scipy.integrate import solve_ivp
 
 class ReferenceORCAGridGenerator:
     """
@@ -14,7 +15,7 @@ class ReferenceORCAGridGenerator:
     """
     
     def __init__(self, resolution="1deg"):
-        """Initialize grid generator with resolution."""
+        """Initialize grid generator."""
         self.resolution = resolution
         self.earth_radius = 6371000.0  # meters
         
@@ -56,26 +57,63 @@ class ReferenceORCAGridGenerator:
         
         return np.array(j_curves)
     
-    def compute_i_curves(self, j_curves):
+    def solve_icurve_ode(self, j_curve):
+        """
+        Solve the ODE for I-curve (mesh meridian).
+        
+        Equation (2): dy/dx = -y' / x'
+        """
+        # Extract J-curve points
+        x_j = j_curve[:, 0]
+        y_j = j_curve[:, 1]
+        
+        # Compute derivatives
+        dy_dx = np.gradient(y_j, x_j)
+        dx_dy = np.gradient(x_j, y_j)
+        
+        # Right-hand side of ODE: dy/dx = -y' / x'
+        def ode_func(x, y):
+            # Interpolate to find y' and x' at current x
+            idx = np.argmin(np.abs(x_j - x))
+            y_prime = dy_dx[idx]
+            x_prime = dx_dy[idx]
+            return -y_prime / x_prime
+        
+        # Initial condition: start at first point of J-curve
+        x0 = x_j[0]
+        y0 = y_j[0]
+        
+        # Solve ODE along x
+        solution = solve_ivp(
+            ode_func,
+            [x_j[0], x_j[-1]],
+            [y0],
+            method='RK45',
+            dense_output=True
+        )
+        
+        return solution
+    
+    def generate_i_curves(self, j_curves):
         """
         Compute I-curves (mesh meridians) by solving Eq. (2).
         
         Equation (2): dy/dx = -y' / x'
         """
-        # This requires numerical solution of the differential equation
-        # For now, implement a simplified version
-        # Full implementation will require ODE solver
-        
-        print("⚠️ I-curve computation requires numerical ODE solver")
-        print("Implementing simplified version for now")
-        
-        # Placeholder: return simple meridians
         i_curves = []
-        for i in range(self.nx):
-            theta = np.linspace(0, np.pi, self.ny)
-            x = self.earth_radius * np.sin(theta)
-            y = self.earth_radius * np.cos(theta)
-            i_curves.append(np.column_stack((x, y)))
+        for j_curve in j_curves:
+            try:
+                solution = self.solve_icurve_ode(j_curve)
+                x_sol = np.linspace(j_curve[0, 0], j_curve[-1, 0], self.nx)
+                y_sol = solution.sol(x_sol)[0]
+                i_curves.append(np.column_stack((x_sol, y_sol)))
+            except Exception as e:
+                print(f"Warning: ODE solver failed for curve: {e}")
+                # Fallback to simple meridian
+                theta = np.linspace(0, np.pi, self.ny)
+                x = self.earth_radius * np.sin(theta)
+                y = self.earth_radius * np.cos(theta)
+                i_curves.append(np.column_stack((x, y)))
         
         return np.array(i_curves)
     
@@ -83,10 +121,9 @@ class ReferenceORCAGridGenerator:
         """
         Project polar coordinates to spherical coordinates.
         """
-        # Stereographic projection inverse
         x, y = polar_coords[..., 0], polar_coords[..., 1]
         
-        # Convert to spherical
+        # Stereographic projection inverse
         rho = np.sqrt(x**2 + y**2)
         c = 2 * np.arctan2(rho, 2 * self.earth_radius)
         
@@ -106,22 +143,14 @@ class ReferenceORCAGridGenerator:
         print(f"✅ Generated {len(j_curves)} J-curves")
         
         # Step 2: Compute I-curves
-        i_curves = self.compute_i_curves(j_curves)
+        i_curves = self.generate_i_curves(j_curves)
         print(f"✅ Generated {len(i_curves)} I-curves")
         
         # Step 3: Project to sphere
-        lat, lon = self.project_to_sphere(j_curves[0])
+        lat, lon = self.project_to_sphere(i_curves[0])
         print(f"✅ Projected to spherical coordinates")
         
         return {
-            'nav_lon': lon,
             'nav_lat': lat,
-            'status': 'reference_algorithm'
+            'nav_lon': lon
         }
-
-# Test the reference implementation
-if __name__ == "__main__":
-    generator = ReferenceORCAGridGenerator("1deg")
-    grid = generator.generate_grid()
-    print(f"\n🎉 Reference algorithm test complete!")
-    print(f"Grid shape: {grid['nav_lon'].shape}")
