@@ -18,45 +18,74 @@ def download_reference_grid():
     TMP_DIR = "tmp_download"
     DATA_DIR = "data"
     TARGET_FILE = os.path.join(DATA_DIR, "domain_cfg.nc")
+    ZIP_FILE = os.path.join(TMP_DIR, "data_repository.zip")
     
     # Check if file already exists
     if os.path.exists(TARGET_FILE):
         print(f"✅ Reference grid already exists: {TARGET_FILE}")
         return True
     
-    print("📥 Downloading reference ORCA1 grid from Zenodo...")
+    # Check if zip file already downloaded
+    if os.path.exists(ZIP_FILE):
+        print(f"✅ Found existing download: {ZIP_FILE}")
+    else:
+        print("📥 Downloading reference ORCA1 grid from Zenodo...")
+        try:
+            # Create directories
+            os.makedirs(TMP_DIR, exist_ok=True)
+            os.makedirs(DATA_DIR, exist_ok=True)
+            
+            # Download the zip file
+            print("Downloading zip file (this may take a while for 1.3GB file)...")
+            response = requests.get(DOWNLOAD_URL, stream=True, timeout=30)
+            response.raise_for_status()
+            
+            with open(ZIP_FILE, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            
+            print("✅ Download completed")
+        except Exception as e:
+            print(f"❌ Error downloading: {e}")
+            if os.path.exists(TMP_DIR):
+                shutil.rmtree(TMP_DIR)
+            return False
     
     try:
-        # Create directories
-        os.makedirs(TMP_DIR, exist_ok=True)
-        os.makedirs(DATA_DIR, exist_ok=True)
-        
-        # Download the zip file
-        print("Downloading zip file...")
-        zip_path = os.path.join(TMP_DIR, "orca1_grid_files.zip")
-        
-        response = requests.get(DOWNLOAD_URL, stream=True)
-        response.raise_for_status()
-        
-        with open(zip_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        
-        print("✅ Download completed")
-        
-        # Extract only domain_cfg.nc
+        # Extract domain_cfg.nc from input_fields/
         print("Extracting domain_cfg.nc...")
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            if 'domain_cfg.nc' in zip_ref.namelist():
-                zip_ref.extract('domain_cfg.nc', path=TMP_DIR)
-                shutil.move(
-                    os.path.join(TMP_DIR, 'domain_cfg.nc'),
-                    TARGET_FILE
-                )
-                print(f"✅ Reference grid saved to: {TARGET_FILE}")
-            else:
+        with zipfile.ZipFile(ZIP_FILE, 'r') as zip_ref:
+            # Check if file exists in input_fields/
+            file_found = False
+            for file in zip_ref.namelist():
+                if 'domain_cfg.nc' in file:
+                    # Extract the file
+                    zip_ref.extract(file, path=TMP_DIR)
+                    # Move to final location
+                    extracted_path = os.path.join(TMP_DIR, file)
+                    shutil.move(extracted_path, TARGET_FILE)
+                    file_found = True
+                    print(f"✅ Reference grid saved to: {TARGET_FILE}")
+                    break
+            
+            if not file_found:
                 print("❌ domain_cfg.nc not found in the zip file")
+                print("Available files:")
+                for file in zip_ref.namelist():
+                    print(f"  - {file}")
                 return False
+        
+        # Clean up
+        shutil.rmtree(TMP_DIR)
+        print("✅ Temporary files cleaned up")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error extracting: {e}")
+        if os.path.exists(TMP_DIR):
+            shutil.rmtree(TMP_DIR)
+        return False
         
         # Clean up
         shutil.rmtree(TMP_DIR)
