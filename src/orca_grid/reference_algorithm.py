@@ -67,7 +67,7 @@ class ReferenceORCAGridGenerator:
         x_j = j_curve[:, 0]
         y_j = j_curve[:, 1]
         
-        # Compute derivatives
+        # Compute derivatives using gradient
         dy_dx = np.gradient(y_j, x_j)
         dx_dy = np.gradient(x_j, y_j)
         
@@ -77,6 +77,11 @@ class ReferenceORCAGridGenerator:
             idx = np.argmin(np.abs(x_j - x))
             y_prime = dy_dx[idx]
             x_prime = dx_dy[idx]
+            
+            # Handle division by zero
+            if np.abs(x_prime) < 1e-10:
+                return 0.0
+            
             return -y_prime / x_prime
         
         # Initial condition: start at first point of J-curve
@@ -84,15 +89,27 @@ class ReferenceORCAGridGenerator:
         y0 = y_j[0]
         
         # Solve ODE along x
-        solution = solve_ivp(
-            ode_func,
-            [x_j[0], x_j[-1]],
-            [y0],
-            method='RK45',
-            dense_output=True
-        )
-        
-        return solution
+        try:
+            solution = solve_ivp(
+                ode_func,
+                [x_j[0], x_j[-1]],
+                [y0],
+                method='RK45',
+                dense_output=True,
+                rtol=1e-6,
+                atol=1e-8
+            )
+            
+            if solution.success:
+                x_sol = np.linspace(x_j[0], x_j[-1], self.nx)
+                y_sol = solution.sol(x_sol)[0]
+                return x_sol, y_sol
+            else:
+                print(f"ODE solver failed: {solution.message}")
+                return None, None
+        except Exception as e:
+            print(f"ODE solver error: {e}")
+            return None, None
     
     def generate_i_curves(self, j_curves):
         """
@@ -102,13 +119,10 @@ class ReferenceORCAGridGenerator:
         """
         i_curves = []
         for j_curve in j_curves:
-            try:
-                solution = self.solve_icurve_ode(j_curve)
-                x_sol = np.linspace(j_curve[0, 0], j_curve[-1, 0], self.nx)
-                y_sol = solution.sol(x_sol)[0]
+            x_sol, y_sol = self.solve_icurve_ode(j_curve)
+            if x_sol is not None:
                 i_curves.append(np.column_stack((x_sol, y_sol)))
-            except Exception as e:
-                print(f"Warning: ODE solver failed for curve: {e}")
+            else:
                 # Fallback to simple meridian
                 theta = np.linspace(0, np.pi, self.ny)
                 x = self.earth_radius * np.sin(theta)
