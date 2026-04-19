@@ -14,7 +14,7 @@ def download_reference_grid():
     
     # Configuration
     ZENODO_RECORD = "14041098"
-    DOWNLOAD_URL = f"https://zenodo.org/records/{ZENODO_RECORD}/files/orca1_grid_files.zip"
+    DOWNLOAD_URL = f"https://zenodo.org/records/{ZENODO_RECORD}/files/data_repository.zip"
     TMP_DIR = "tmp_download"
     DATA_DIR = "data"
     TARGET_FILE = os.path.join(DATA_DIR, "domain_cfg.nc")
