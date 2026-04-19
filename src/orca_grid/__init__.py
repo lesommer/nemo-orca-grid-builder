@@ -6,8 +6,8 @@ This module implements the ORCA grid generation algorithm based on Madec & Imbar
 Core Components:
 - grid_generator.py: Main grid generation algorithms
 - stereographic.py: Stereographic projection utilities
-- coordinates.py: Coordinate system transformations  
-- scale_factors.py: Scale factor calculations
+-   
+- 
 - netcdf_writer.py: NetCDF file output
 
 Mathematical Foundation:
@@ -25,5 +25,6 @@ Usage:
 
 from .__main__ import ORCAGridBuilder
 from .plotting import plot_grid_structure, plot_scale_factors, plot_staggered_points
+from .validate_grid import validate_grid
 
-__all__ = ['ORCAGridBuilder', 'plot_grid_structure', 'plot_scale_factors', 'plot_staggered_points']
+__all__ = ['ORCAGridBuilder', 'validate_grid', 'plot_grid_structure', 'plot_scale_factors', 'plot_staggered_points']

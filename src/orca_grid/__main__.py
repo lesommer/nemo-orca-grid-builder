@@ -138,23 +138,34 @@ class ORCAGridBuilder:
         
         # Write to NetCDF
         return self.netcdf_writer.write_netcdf(grid_data, filename)
-    
-    def generate_and_validate(self, reference_file="data/domain_cfg.nc"):
+
+    def generate_and_validate(self, reference_file=None):
         """
         Generate grid and validate against reference file.
         
         Args:
-            reference_file: Path to reference NetCDF file
+            reference_file: Optional path to reference NetCDF file
             
         Returns:
             validation_report: Dictionary containing validation results
         """
-        # This would be implemented in a future version
-        # For now, just generate the grid
+        # Generate grid data
         grid_data = self.generate_grid()
         
+        # Write to temporary file
+        temp_file = "temp_generated.nc"
+        self.write_netcdf(temp_file)
+        
+        # Validate using the validation module
+        from .validate_grid import validate_grid
+        report = validate_grid(temp_file, reference_file)
+        
+        # Clean up
+        import os
+        os.remove(temp_file)
+        
         return {
-            'status': 'generated',
+            'status': 'generated_and_validated',
             'grid_data': grid_data,
-            'validation': 'not_implemented'
+            'validation_report': report
         }

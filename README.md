@@ -115,7 +115,7 @@ The ORCA grid uses a semi-analytical method:
 The library includes comprehensive validation tools:
 
 ```python
-from orca_grid.validate_grid import validate_grid
+from orca_grid import validate_grid
 
 report = validate_grid("generated.nc", "reference.nc")
 print(f"Validation passed: {report['validation_passed']}")
@@ -271,7 +271,7 @@ The library includes visualization tools to inspect the generated grids:
 ### Generating Your Own Plots
 
 ```python
-from orca_grid.plotting import plot_grid_structure, plot_scale_factors
+from orca_grid import plot_grid_structure, plot_scale_factors, plot_staggered_points
 
 # Plot a specific grid
 plot_grid_structure('output/grids/my_grid.nc', 'My ORCA Grid', 'output/plots/my_grid_plot')
