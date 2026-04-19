@@ -56,3 +56,8 @@ class ORCAGridGenerator:
         e1 = e2 * np.cos(lat_rad)
         
         return e1, e2
+    
+    # Add generate_grid method for compatibility
+    def generate_grid(self):
+        """Generate grid (compatibility method)."""
+        return self.generate_spherical_grid()
