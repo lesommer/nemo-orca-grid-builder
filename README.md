@@ -31,6 +31,8 @@ pip install .
 
 ## Quick Start
 
+### Python API
+
 ```python
 from orca_grid import ORCAGridBuilder
 
@@ -40,6 +42,13 @@ grid_data = builder.generate_grid()
 
 # Write to NEMO-compliant NetCDF file
 builder.write_netcdf("domain_cfg.nc")
+```
+
+### Command Line Interface
+
+```bash
+# Generate 1° grid
+python -m orca_grid 1deg my_grid.nc
 ```
 
 ## License
