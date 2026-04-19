@@ -1,0 +1,354 @@
+Correspondence to: G. MadecClimate Dynamics (1996) 12: 381–388
+q Springer-Verlag 1996
+A global ocean mesh to overcome the North Pole singularity
+Gurvan Madec, Maurice Imbard
+Laboratoire d’Océanographie Dynamique et de Climatologie (CNRS/ORSTOM/UPMC), Université Paris VI, boîte 100, 4, place
+Jussieu, 75252 Paris, France
+Received: 21 June 1995 / Accepted: 9 November 1995
+Abstract. A semi-analytical method is presented for
+constructing a global orthogonal curvilinear oceanmesh which has no singularity point inside the compu-tational domain since the mesh poles are moved toland points. The method involves defining an analyti-cal set of mesh parallels in the stereographic polarplan, computing the associated set of mesh meridians,and projecting the resulting mesh onto the sphere. Theset of mesh parallels proposed here is defined as a se-ries of embedded circles. The resulting mesh presentsno loss of continuity in either the mesh lines or thescale factors over the whole ocean domain, as the meshis not a composite mesh. Thus, the Bering Strait can beopened without specific treatment. The equator is amesh line, which provides a better numerical solutionfor equatorial dynamics. The resolution can be easilycontrolled through the definition of three analyticalfunctions which can increase resolution and/or main-tain a low ratio of anisotropy. The mesh has been im-plemented in the LODYC general circulation oceanmodel. Results of a semi-diagnostic simulation areshown.
+1 Introduction
+The Arctic Ocean is an active participant in the global
+climate system which influences both its oceanic andatmospheric components. The sea ice export and freshpolar surface water outflow regulate the deep convec-tion in the Nordic Seas (Aagaard and Carmack 1989),while the deep Arctic water outflow actively contri-butes to the formation of the North Sea deep water.All these exchanges ultimately determine the charac-teristics of the North Atlantic Deep Water and have asignificant impact on the global ocean “conveyor belt”.Due to the presence of a permanent sea ice cover in-volving strong positive feedbacks between the atmo-sphere and the ocean (Herman and Johnson 1980), the
+Arctic Ocean is also suspected to play a central role inthe natural variability of the climate system (Mysak etal. 1990). Model experiments have also shown that it isquite vulnerable to large climatic changes from in-creased atmospheric CO
+2 as a result of positive feed-
+backs related to high latitude snow and sea ice (Wash-ington and Meehl 1986).
+The Arctic Ocean stratification plays a crucial role
+in maintaining the sea ice cover as well as in controll-ing the efficiency of the deep water formation on theshelves. The stratification is itself controlled by the sur-face fresh water input from river run-off and throughthe Bering Strait, and by the warm, salty inflow of At-lantic water from the Nordic Seas (Rudels 1989). Inparticular, the influence of the Bering Strait inflow onthe global ocean circulation has recently been empha-sized by Reason and Power (1994) in a numericalstudy. They show an increase of 8% in the rate of for-mation of the North Atlantic Deep Water when thestrait is open.
+In the development of a global ocean model for cli-
+mate purposes as well as for the study of the globalthermohaline circulation, it is therefore important toinclude the Arctic Ocean and its connections to the At-lantic and Pacific Oceans. Unfortunately, the tradition-al geographical latitude-longitude coordinate systemused in solving the equations of motion in ocean gener-al circulation models has a singular point in the ArcticOcean at the North Pole, where the meridians con-verge inside the computational domain. The conver-gence places a severe restriction on the length of thetime step allowed for computational stability of finitedifference schemes. Various solutions have been ad-vanced to solve this problem. Bryan et al. (1975) ap-plied a zonal Fourier filter poleward of 45 7 on the
+prognostic fields in order to suppress the shortestwavelength components. However, this procedure cangenerate numerical noise as the non divergent natureof the flow is not necessarily preserved by the filter(Bryan 1987). Semtner and Chervin (1988) suppressthe problem by the walling off of the Arctic Ocean at
+---
+382 Madec and Imbard: A global ocean mesh to overcome the North Pole singularity
+657N latitude. Another solution consists of using a
+composite mesh made up of two grids rotated by 90 7
+relative to each other (one mesh’s poles are on the oth-er grid’s equator) (Deleersnijder et al. 1993; Eby andHolloway 1994; Gwilliam 1995). One mesh is used forthe North Atlantic and Arctic Oceans and the otherfor the rest of the world ocean. The Bering Strait isclosed and the two meshes are coupled along a line oflongitude in one mesh and along the equator in theother. Although this solution solves the North Poleproblem, it still presents two drawbacks. First, the gridsize cannot be continuous across the equator: a smallchange in grid size occurs across the equator which candamage the second order accuracy of the numericalschemes used in the ocean model (Marti et al. 1992).However, the effect of such a discontinuity may besmall as suggested by Coward et al. (1994). Second, themesh does not link the Pacific Ocean to the ArcticOcean continuously, so that a specific treatment mustbe developed to open the Bering Strait.
+The solution proposed in this study overcomes the
+North Pole singularity without these drawbacks, butrequires an ocean model adapted to horizontal ortho-gonal curvilinear coordinates. It consists of coveringthe Earth with a global orthogonal curvilinear mesh inwhich the poles (i.e. points of convergence of meshline) are located on land. Various methods exist forconstructing such a mesh. Murray (1995) shows that anumber of global orthogonal curvilinear meshes can beconstructed quite simply by analytical means, using theproperties of conformal map projection. However, theequatorial dynamics is better solved numerically whenthe mesh parallels have an east-west alignment at theequator. This additional requirement makes it neces-sary to resort to the use of composite meshes, whenusing analytical meshes proposed by Murray (1995).This inevitably results in some loss of continuity ofscale factors (metric coefficients) across the join (Mur-ray 1995). The method proposed here is a semi-analyti-cal method which allows global orthogonal curvilinearmeshes to be constructed for which poles are on landand the equator is a mesh line.
+The study is structured as follows: in Sect. 2 the
+technique used to defined the global ocean mesh is de-scribed. In Sect. 3, the choice of the various parametersis discussed. In the last section the results obtained fora global ocean model are briefly presented.
+2 Construction of the horizontal global mesh
+The basic idea of the mesh construction is to define
+judiciously an analytical set of mesh parallels. A differ-ential equation can be derived that must be verified bythe mesh meridians. The numerical solution of thisequation completes the global mesh construction. Inorder to simplify both the definition of the mesh paral-lels and the resolution, it is convenient to work on anorth stereographic polar plan rather than on a sphere.Indeed, since the stereographic polar projection is aconformal transformation, the projection on the sphere
+Fig. 1. In the stereographic polar plan ( Ox,Oy ), the mesh paral-
+lels L(j) are a series of embedded circles which have the same
+centre O outside L(jeq) and which have centres that continuously
+move along the y-axis from O to Mnp inside L(jeq). Starting from
+point M0(i) defined by the angle h(i), a mesh meridian G(i) is
+computed as the curve which intercepts each circle L(j) at right
+angles
+of an orthogonal mesh defined on this plan is also an
+orthogonal mesh. The problem can thus be reduced toa two-dimensional problem of defining an analyticalset of mesh parallels and computing the correspondingmesh meridians on the stereographic polar plan.
+Let the horizontal ocean mesh be defined by the I-
+and J-curves, the mesh meridians and parallels, respec-
+tively. IM and JM are the number of I- and J-curves
+covering the global mesh, and J
+eq is the number of J-
+curves in the Southern Hemisphere. Let ( Ox, Oy ) be a
+Cartesian coordinate system on the north stereograph-ic polar plan such that O and the unity circle are the
+stereographic polar projection of the North Pole andthe equator, respectively (Fig. 1).
+2.1 The choice of J-curves
+The J-curves are defined as a series of embedded cir-
+cles which have the same centre O in the Southern
+Hemisphere (i.e. outside the unity circle) and whichhave centres that continuously move along the y-axisfrom O to M
+np (the mesh North Pole) in the Northern
+Hemisphere (i.e. inside the unity circle) (Fig. 1). Thisseries of circles 
+L(j) is defined for both hemispheres by
+the following equation:
+L(j):x2cy2P(f(j)cg(j))ycf(j)g(j)p0jB[1,JM] (1)
+where f and g are the functions which give the ordinate
+of the two intersections between L(j) and the y-axis. f
+and g verify the following properties:
+f and g are continuous and differentiable at least
+twice (a)
+f is strictly increasing and g is strictly decreasing with
+increasing j (b)
+f(JM)pg(JM) (c)
+---
+Madec and Imbard: A global ocean mesh to overcome the North Pole singularity 383
+f(Jeq)pP 1pP g(Jeq) (d)
+f(j)pP g(j)jB[1,Jeq] (e)
+Conditions (a) and (b) ensure that the circles are strict-
+ly embedded and that given a point Mp(x,y) on the
+stereographic plan, there exists one and only onejB[1,JM] which verifies (1); (c) that 
+L(JM) reduces to
+a single point, the mesh North Pole Mnp; (d) that L(Jeq)
+is the unity circle, so that the equator is a mesh line;and (e) that outside the unity circle, all the circles arecentred on O (i.e. the Southern Hemisphere configura-
+tion is geographical). Note that (e) can be modified toshift the mesh South Pole. This is a priori not necessaryas the South Pole is already placed near the centre ofthe Antarctic continent.
+2.2 Computation of the I-curves
+The I-curves form a series of curves 
+G(i) which cross
+the equatorial circle L(Jeq) at a point M0(i) defined by
+the angle ( Ox,OM 0)ph(i), where h is a given contin-
+uous and at least twice differentiable function (Fig. 1).h describes the I-point distribution along the equator.
+The I-curves intercept each circle 
+L(j) at right angles,
+i.e. they obey the following differential equation:
+dy
+dxp2yP(f(j)cg(j))
+2x(2)
+Since j is linked to ( x, y) through Eq. (1), an analytical
+solution for Eq. (2) is by no means trivial except forparticular expressions of f and g which do not verify all
+the properties (a) to (e). For example, when f and g are
+linear functions of j, the curves 
+G(i) which are solutions
+of Eq. (2) also form a linear series of embedded circlesbut the resulting mesh does not have a latitude/longitu-de configuration in the Southern Hemisphere. Howev-er, Eq. (2) can be solved numerically with a very highprecision to find the I-curves. The algorithm used to
+compute the pairs ( x(i,j),y(i, j)) is presented in the ap-
+pendix. The geographical coordinates of all the meshpoints on the sphere are then obtained by applying theinverse of the stereographic polar projection:
+l(i,j)p1807
+parctan1y(i,j)
+x(i,j)2
+w(i,j)p907P3607
+parctan( ;x2(i,j)cy2(i, j))(3)
+In order to complete the mesh computation, we
+have to evaluate the scale factors (i.e. the rate of defor-mation of the mesh or grid spacing) in the two horizon-tal directions. These scale factors e
+1 and e2 are given
+by:
+e1pa31il
+iicosw22
+c1iw
+ii2241/2
+e2pa31il
+ijcosw22
+c1iw
+ij2241/2(4)where a is the Earth’s radius. The partial derivative of
+l and w with respect to i and j are computed using a
+fourth order centred finite difference scheme. A suffi-cient precision is reached for this computation by usinga mesh which is one hundred times smaller than themesh required. We verify the overall precision of theabove mesh computation in the case of linear f and g
+functions where an analytical solution is known, and inthe general case, by computing a mesh that was onethousand times smaller than the required one. In bothcases, the accuracy of the mesh point positions and ofthe scale factors was found to be smaller than 10
+P5m,
+that is a relative precision smaller than 10P10.
+3 Choice of a global ocean mesh
+The technique presented in the previous section allows
+the definition of various global ocean meshes, depend-ing on the mesh North Pole position ( M
+np) and the
+functions f, g and h chosen. The expected resolution
+will serve as guideline between the different choices.Here, we want to define a world ocean model to studythe seasonal to decadal variability of the ocean withspecial attention devoted to the tropical interannualvariability. The model resolution must be a reasonablecompromise between ocean physics and computationalresources. This leads, for the Southern Hemiphere, toa zonal grid spacing of 2 7, and to a meridional grid
+spacing of 1.5 7 at mid-latitudes decreasing to 0.5 7 in the
+equatorial strip. For the Northern Hemisphere, themesh characteristics must be similar, in particular thescale factors must not be smaller than in the SouthernHemisphere, otherwise it would result in a more re-strictive CFL criterion. Therefore, the mesh NorthPole has been set at 40 7N and 90 7E, i.e. over China.
+This is as far as possible from the geographical NorthPole while being not too close to an oceanic area. Thechoice of h is straightforward and corresponds to a uni-
+form 2 7 grid spacing along the equator:
+h(i)p2i1^i^IM (5)
+where h is expressed in degrees and IMp180.
+For f and g, the analytical expression is somewhat
+more complicated. We found it convenient to define fb
+and gb, the first derivative of f and g, as linear combi-
+nations of hyperbolic tangents plus a constant (Fig. 2),so that the grid spacing can be rather easily adjusted tothe desired values. f and g expressed in degrees, take
+the following form:
+f(j)pA
+0jcA1
+cB0log[cosh[( jPJeqPJB)/B1]/cosh[( jPJeqcJB)/B1]]
+(6a)
+PC0log[cosh[( jPJeqPJC)/C1]/cosh[( jPJeqcJC)/C1]]
+for 1^j^Jeq g(j)pf(j)
+for Jeq^j^JM g (j)pD0jcD1 (6b)
+PE0log[cosh[( jPJeqPJE)/E1]/cosh[( jPJeqcJE)/E1]]
+The first (second) logarithmic term of Eq. (6a) is re-
+sponsible for a symmetrie change with respect to the
+---
+384 Madec and Imbard: A global ocean mesh to overcome the North Pole singularity
+Fig. 2. Meridian scale factor e2 as a function of the mesh parallel
+index J. Each curve is associated with an integer value of the
+mesh meridian index I. The envelope of these curves ( Ip1 and
+Ip90) gives the first derivative of g and f
+equator in the grid spacing between the equator and
+mid-latitudes (mid-latitudes and polar regions) (Fig. 2).The logarithmic term of Eq. (6b) is responsible for thedecrease of the grid spacing northward of 30 7N, over
+Asia (Fig. 2) which allows the grid pole to be at 40 7N.
+The choice of the 15 coefficients in Eqs. (6a) and (6b)is as follows. We first set the number of grid points inthe north-south direction and the index of the equator:JMp150 and J
+eqp64. Then, we choose B1p10., JBp14
+and B0p0.52 B1/tanh[ JB/B1] which means that the var-
+iation of fb from its equatorial value to its mid-latitude
+value occurs over 10 points at the 14th point on bothsides of the equator point, and with an amplitude of2!0.52p1.047. Similarly, we choose C
+1p8., JCp65
+and C0p0.25 C1/tanh[ JC/C1] for the variation of fb
+over polar regions. A0 and A1 are then specified such
+that fb(Jeq)p0.57 and f(Jeq)p07, which leads to
+A0p0.5c2!0.52P2!0.25p1.047 and A1pP A0Jeq.
+A similar procedure is used for g. We set E1p8. and
+JEp65 and choose E0 such that gb varies from 0.5 7 at
+the equator to a minimum value of 10P2 at jpJM. This
+last condition ensures that gb is strictly positive
+(gbÁ0), i.e. the property (a) is satisfied. It leads to the
+following expression for E0:
+E0p(0.5P10P2)/E1/(2 tanh[ JE/E1]
+Ptanh[( JMPJeqPJE)/E1]ctanh[( JMPJeqcJE)/E1])
+The value of D0 and D1 are then specified such that
+gb(Jeq)p0.57 and g(Jeq)p07, which leads to
+D0p0.5P2E0tanh ( JE/E1)/E1 and D1pP D0Jeq.
+Using these coefficients, f and g satisfy (a) to (e),
+apart from (c). For this last property, they can alwaysbe extended toward the mesh North Pole while verify-ing the other required properties. However this part ofthe mesh is on a continent, i.e. out of the computation-al domain, so that it is not required.
+Using the above functions and mesh North Pole po-
+sition and the numerical procedure described in theprevious paragraph, a global ocean mesh has been
+Fig. 3. a Unmasked and b masked world ocean mesh and c ste-
+reographic north polar projection of the world ocean mesh. Onlyone mesh parallel and meridian in three are shown
+computed. Its ocean/land masked stereographic north
+polar projection is shown in Fig. 3. The associatedmasked scale factors and ratio of anisotropy,R
+ipmax( e1/e2,e2/e1), are shown in Fig. 4. The mesh has
+180!150 grid points. The minimum value of the scale
+factors, 50 km, is reached in the Kara and WeddellSeas. The ratio of anisotropy is maximum at the equa-
+---
+Madec and Imbard: A global ocean mesh to overcome the North Pole singularity 385
+Fig. 4. a Horizontal scale factors e1 and b e2 of the world ocean
+mesh and c the associated ratio of anisotropy, Ripmax( e1/e2,e2/
+e1). The contour interval is 10 km in a and b, and 0.25 in c
+tor where it is equal to 4 (2 7!0.57). It slowly decreases
+to 1 at mid-latitudes and then increases poleward to 3at the end of the Kara and Weddell Seas. This ratioremains below its equatorial value because of the de-crease of fb in polar regions.
+4 Results of the global ocean model
+The mesh described in the previous section has been
+used in the Laboratoire d’Océanographie Dynamiqueet de Climatologie (LODYC) primitive equation oceangeneral cirulation model (Delecluse et al. 1993) to si-mulate the global ocean circulation associated with thethermodynamic fields of Levitus (1982). The limitingfactor for the time step is not the smallness of the scalefactors, but the value reached by the Coriolis parame-ter at the North Pole. Indeed, the time step must verify2
+pfDt^1 which leads to a maximum time step of 1 h
+55 min. As the time discretization of the Coriolis termis explicit in the model, this is the most restrictive con-
+Fig. 5. Model level depth( thick line ) and associated vertical scale
+factors ( dashed line )
+straint on the time step which has led us to choose a
+model time step of 1 h 40 min.
+In the vertical, the placement of vertical velocity
+and temperature levels is defined from an analytic ex-pression of the depth z(k) whose derivative provides
+the vertical scale factor e
+3(k)piz/ik (Marti et al.
+1992). The following function has been chosen:
+z(k)ph0Ph1kPh2h3log3cosh1kPh4
+h324(7)
+where kp1 to KM for vertical velocity levels and
+kp1c1/2 to KMc1/2 for temperature levels. Such an
+expression allows us to define a nearly uniform place-ment of levels at the ocean top and bottom with asmooth hyperbolic tangent transition in between (Fig.5). Here we have chosen a 10 m (500 m) resolution inthe surface (bottom) layers and a depth which variesfrom 0 at the sea surface to a minimum of P5000 m.
+This leads to the following conditions:
+e
+3(1c1/2)p10.
+e3(KMP1/2)p500.
+zp0.
+z(KM)pP 5000.(8)
+The five coefficients h0 to h4 in Eq. (7) are determined
+such that Eq. (8) is satisfied. To do so, we first made anarbitrary choice of KM and h
+3, here KMp31 and
+h3p3. Using the first three conditions in Eq. (8), we
+express h0h1 and h2 as a function of h4, and then we
+determine h4B[1,KM] using a bisection method such
+that the last condition in Eq. (8) is satisfied. In thepresent case this leads to the following values:h
+0p4762.96, h1p255.58, h2p245.58, and h4p21.43.
+The resulting depths and scale factors as a function ofthe model levels are shown in Fig. 5.
+The global model has eleven islands: Antarctica,
+America, Cuba, Madagascar, Philippines, Borneo, New
+---
+386 Madec and Imbard: A global ocean mesh to overcome the North Pole singularity
+Fig. 6. a Annual mean barotropic stream function associated with
+the vertically integrated horizontal circulation and b zoom-in of
+the stream function over the Arctic ocean. The contour interval is10 and 1 Sverdrup, respectively. The numbers indicate the mass
+transport in Sverdrup through the different Arctic straitsGuinea, Australia, New Zealand, Iceland and Spitz-
+bergen. Non-zero depth-integrated circulation is per-mitted around each island. The bottom topographyfield is derived from the 5 b!5b ETOPO5 (1986) aver-
+aged over each model tracer grid box. A minimumdepth for the ocean continental shelf has been set to 3levels ( F30 m) and a maximum depth to 5000 m. Fi-
+nally, no smoothing operator has been applied on theresulting bathymetry, but alterations were made byhand to improve representation of major ridges andsills. In particular, a width of at least two tracer gridpoints has been imposed on straits and deep channels.This constraint is motivated by the discrete expressionof the geostrophic balance which requires the defini-tion of a pressure gradient across the straits and chan-nels.
+Horizontal eddy viscosity and diffusivity coefficients
+were set to 4 10
+4m2sP1 and 2 103m2sP1, respectively,
+while the vertical ones are computed from a 1.5 turbu-lent closure model (Blanke and Delecluse 1993). Themodel was forced with monthly Hellerman and Rosen-stein (1983) wind stress and Esbensen and Kushnir(1981) heat flux climatology plus a 12 day relaxationtoward surface time varying temperature and salinitydata of Levitus (1982). The integration was startedwith January Levitus (1982) data and pursued over a20 year period with an interior relaxation to themonthly mean temperature and seasonal mean salinityof Levitus (1982) with a relaxation time scale of 50days in the upper 800 m and 1 year in the deepocean.
+To give an exhaustive description of the simulated
+dynamics is beyond the scope of this study. A briefpresentation of the annual mean circulation integratedeither vertically or zonally is preferred to highlight thesimulation behaviour. The annual mean barotropicstream function (BSF) associated with the vertically in-tegrated horizontal circulation is shown in Fig. 6a. Inmiddle and low latitudes and away from the westernboundaries and straits, the BSF almost reflects theSverdrup transport derived from wind stress. The mag-nitude of tropical and sub-tropical gyres is similar tothose obtained in other global models using the samewind product (see for example Semtner and Chervin1992). A zoom in the BSF field over the Arctic Oceangiven in Fig. 6b emphasizes the importance of the flowthrough the Bering Strait on the Arctic circulation. Al-though the low model resolution in this region(F110 km, Fig. 3c) leads us to a widening of the Ber-
+ing Strait from 85 to 220 km (two temperature and vel-ocity grid points) with an adequate depth of 40 m,about 0.95 Sv (1 Sv p10
+P6 m3 sP1) enters the Arctic
+Ocean through the Bering Strait in good agreementwith observations (Coachman and Aagaard 1988). Thisis only three times less than the net inflow west of Ice-land (3.4 Sv) and allows the Denmark Strait net out-flow to be 22% higher (4.35 Sv).
+Figure 7 shows the annual mean meridional stream
+function (MSF) associated with the zonally integratedmeridional circulation both for the global circulation(Fig. 7a) and for the circulation only in the Atlantic(Fig. 7b). The computation of these MSF is not
+straightforward as the mesh does not follow the longi-tudes in the Northern Hemisphere. MSF is deducedfrom a meridional flow which is computed for a givenlatitude as the flow that crosses a broken line whichfollows the faces of the mesh cells and is as close aspossible to that latitude. The broken lines used for theNorth Atlantic MSF computation are shown in Fig. 8.This solution has been preferred to an interpolation ofthe velocity fields onto a geographic mesh before thecomputation. Indeed, such an interpolation introduceserrors in the velocity, field which is no longer non-div-ergent, and thus the resulting MSF indicates a trans-port of water through the ocean floor or surface, de-pending on the direction of integration (Eby and Hol-loway 1994). The general features of both Atlantic andglobal MSF are similar to those obtained in other glo-bal models. No problem occurs that could be related tothe stretched mesh used. Such a mesh appears to bewell suited to the simulation of the global ocean circu-lation.
+5 Conclusion
+A semi-analytical method has been developed to con-
+struct a global orthogonal curvilinear ocean mesh. It
+---
+Madec and Imbard: A global ocean mesh to overcome the North Pole singularity 387
+Fig. 7a, b. Annual mean meridional stream function associated
+with the zonally integrated meridional circulation for a the global
+circulation and b the circulation only in the Atlantic. The contour
+interval is 5 and 2.5 Sverdrup, respectively
+Fig. 8. The broken lines used for the North Atlantic meridional
+stream function computation. One line in three is shown
+consists in defining an analytical set of mesh parallels
+on a stereographic polar plan, then deriving and solv-ing a differential equation to compute the associatedset of mesh meridians, and eventually projecting theresulting mesh onto the sphere. The set of mesh paral-lels used here has been defined as a series of embed-ded circles. It provides a world ocean mesh which hasthe following properties: (1) the mesh has no singulari-ty point inside the computational domain as the meshNorth Pole has been shifted onto land ; (2) no loss ofcontinuity of either the mesh lines or the scale factorsoccurs over the whole ocean domain, as the mesh isnot a composite mesh; (3) the Bering Strait is openedwithout specific treatment; (4) the equator is a meshline, which provides a better numerical solution for theequatorial dynamics; and (5) the resolution can be con-trolled through the definition of three analytical func-tions to increase resolution and/or to maintain a lowratio of anisotropy (see the resolution in the equatorial
+and Arctic regions). A world ocean model has beendesigned using this technique. It gives satisfactory re-sults and is currently being used both in forced (Madec1995, personal communication) and coupled mode(Guilyardi et al. 1995).
+The method can be applied to any other set of mesh
+parallels that are defined analytically, so that a differ-ential equation can be derived and solved to find themesh meridian. For example, a solution that exhibitssimilar properties to the one presented here is sug-gested from Murray’s (1995) work. The set of mesh pa-rallels can be defined as a series of embedded ellipsesstarting from the equatorial circle (or any other chosenlatitude circle) and converging toward confocal ellipseswhose focals are set onto North America and Russia,respectively.
+Acknowledgements. Support for computation has been provided
+by the Institut de Recherche en Informatique Scientifique(IDRIS) of the Centre National de la Recherche Scientifique(CNRS).
+Appendix: Numerical computation of I-curves
+Outside the unity circle, the I-curves are half-rays, so
+that no computational effort is required to solve thedifferential Eq. (2). Inside the unity circle, Eq. (2) issolved starting from the point M
+0(i) using a constant
+grid spacing Dxpcos(h(i))/N (where N is the number
+of space steps), by the following algorithm:– initialization:
+(x
+0,y0)p(cos[ h(i)], sin[ h(i)])
+x1px0PDx (A1)
+ybpy0PDx1dy
+dx20
+py0PDxtan[h(i)]
+– for np1 to N:
+First, the index jn of the circle L which goes through
+Mnp(xnyn) is determined. This index is the solution of
+Eq. (1) for ( yn,yn). The existence and uniqueness of jn
+is established by (a) and (b). The index is found at the
+machine precision by a method of bisection. Then,y
+nc1 can be computed using a second order centred
+finite difference approximation of Eq. (2):
+---
+388 Madec and Imbard: A global ocean mesh to overcome the North Pole singularity
+xnc1pxnPDx
+ync1pynP1c2Dx2ynP(f(jn)cg(jn))
+2xn(A2)
+Note that a higher order of approximation can be used,
+such as fourth order Runge-Kutta scheme, to solve Eq.(2). The choice is between increasing the accuracy ofthe scheme or spending an equivalent amount of extracomputation time in reducing the grid spacing (largervalue of N). The second alternative has been found to
+be more advantageous. The above computation allowseach 
+G-curve to be defined by a series of triplets
+(xn(i),yn(i),jn(i)), then a fourth order interpolation
+scheme is used to find, for each integer value of i, the
+coordinates ( xn,yn) associated with integer values of j.
+This interpolation is done with a high precision as N is
+typically set to one hundred times JMPJeq.
+References
+Aagaard K, Carmark EC (1989) The role of sea ice and other
+fresh water in the Arctic circulation. J Geophys Res94: 14485–14 498
+Blanke B, Delecluse P (1992) Variability of the tropical Atlantic
+ocean simulated by a general circulation model with two dif-ferent mixed layer physics. J Phys Oceanogr 23 : 1363–1388
+Bryan F (1987) Parameter sensitivity of primitive equation ocean
+general circulation models. J Phys Oceanogr 17 :970–985
+Bryan K, Manabe S, Pacanowski RC (1975) A global ocean-
+atmosphere climate model. Part II. The oceanic circulation. JPhys Oceanogr 5: 30–46
+Coachman LK, Aagaard K (1988) Transports through Bering
+Strait: annual and interannual variability. J Geophys Res93: 15535–15 539
+Coward AC, Killworth PD, Blundell JR (1994) Tests of a two-
+grid world ocean model. J Geophys Res 99: 22725–22 735
+Delecluse P, Madec G, Imbard M, Lévy C (1993) OPA version 7
+Ocean General Circulation Model reference manual. LO-DYC, France, Internal Report, 93/05, 111 pp (Available fromLaboratoire d’Océanographie Dynamique et de Climatologie,Université Paris VI, 75252 Paris, France)
+Deleersnijder E, Van Ypersele JP, Campin JM (1993) An ortho-
+gonal, curvilinear coordinate system for a world ocean model.Ocean Modelling 100 (unpublished manuscript)
+Eby M, Holloway G (1994) Grid transformation for incorporat-
+ing the Arctic in a global ocean model. Clim Dyn 10 : 241–247Esbensen SK, Kushnir Y (1981) The heat budget of the global
+ocean: an atlas based on estimates from marine surface obser-vations. Climatic Resolution Institution, Oregon State, Uni-versity, Rep 29
+ETOPO5 (1986) Global 5 b!5b depth and elevation. (Available
+from National Geographical Data Center, NOAA, US De-partment of Commerce, Code E/GC3, Boulder, CO 80303)
+Guilyardi E, Madec G, Terray L, Déqué M, Pontaud M, Imbard
+M, Stephenson D, Filiberti MA, Cariolle D, Delecluse P,Thual O (1995) Simulation couplée océan-atmosphère de lavariabilité du climat. C R Acad Sci Paris, 320, Série IIa, 683–690
+Gwilliam CS (1995) The OCCAM Global Ocean Model. In:
+Hoffman G-R, Krietz N (eds) Coming of Age (Proc 6thECMWF Workshop on the use of parallel processors in me-teorology), World Scientific
+Hellerman S, Rosenstein M (1983) Normal monthly wind stress
+over the World Ocean with error estimates. J Phys Oceanogr13: 1093–1104
+Herman GF, Johnson WT (1980) The effect of extreme sea ice
+variations on the climatology of the Goddard general circula-tion model. In: Pritchard ED (ed) Sea ice processes and mod-els. University of Washington, Seattle, pp 207–223
+Levitus S (1982) Climatological atlas of the Word Ocean. NOAA
+Prof Pap 13, CS Government Printing Office, WashingtonD.C.
+Marti O, Madec G, Delecluse P (1992) Comment on “net diffu-
+sivity in ocean general circulation models with nonuniformgrids” by F. L. Yin and I. Y. Fung. J Geophys Res 97: 12 763–12766
+Murray RJ (1995) Explicit generation of orthogonal grids for
+ocean models. J Comput Phys (accepted)
+Mysak LA, Manak DK, Marsden RF (1990) Sea-ice anomalies
+observed in the Greenland and Labrador Seas during 1901–1984 and their relation to an interdecadal Arctic climate cycle.Clim Dyn 5 : 111–133
+Reason CJC, Power SB (1994) The influence of the Bering Strait
+on the circulation in a coarse resolution global ocean model.Clim Dyn 9 : 363–369
+Rudels B (1989) The formation of polar surface water, the ice
+export and the exchanges through Fram Strait. Prog Ocea-nogr 22: 205–248
+Semtner AJ, Chervin RM (1988) A simulation of the global
+ocean circulation with resolved eddies. J Geophys Res93: 15502–15 522
+Semtner AJ, Chervin RM (1992) Ocean general circulation from
+a global eddy-resolving model. J Geophys Res 97: 5493–5550
+Washington WM, Meehl GA (1986) General circulation model
+CO
+2 sensitivity experiments: snow-sea ice albedo parameteri-
+zation and globally averaged surface air temperature. ClimChange 8 :231–241
+---
