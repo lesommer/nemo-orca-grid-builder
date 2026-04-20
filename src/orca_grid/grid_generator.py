@@ -36,6 +36,12 @@ class ORCAGridGenerator:
         grid_data['e1t'] = np.ones_like(grid_data['nav_lon']) * 100000
         grid_data['e2t'] = np.ones_like(grid_data['nav_lon']) * 100000
         
+        # Ensure all arrays have the correct shape for NetCDF writer
+        # Remove time dimension if present (NetCDF writer expects 2D arrays)
+        for key, value in grid_data.items():
+            if value.ndim == 3 and value.shape[0] == 1:  # If has time dimension, remove it
+                grid_data[key] = value[0, :, :]  # Shape: (ny, nx)
+        
         return grid_data
     
     def calculate_scale_factors(self, lat, lon):
@@ -51,3 +57,14 @@ class ORCAGridGenerator:
         e1 = e2 * np.cos(lat_rad)
         
         return e1, e2
+    
+    def write_netcdf(self, filename):
+        """Write grid to NetCDF file."""
+        from .netcdf_writer import NEMONetCDFWriter
+        
+        # Generate grid data
+        grid_data = self.generate_spherical_grid()
+        
+        # Create writer and write file
+        writer = NEMONetCDFWriter(self.resolution)
+        return writer.write_netcdf(grid_data, filename)

@@ -38,9 +38,12 @@ class ReferenceORCAGridGenerator:
         # Analytical functions f(j) and g(j)
         j_values = np.linspace(0, self.ny-1, self.ny)
         
-        # For 1° resolution, use these parameters
-        f_j = 1.0 + 0.5 * np.sin(np.pi * j_values / self.ny)
-        g_j = 0.3 * j_values / self.ny
+        # Modified parameters for extended latitude range
+        # f_j controls the radius variation - more aggressive variation
+        f_j = 1.0 + 1.2 * np.sin(np.pi * j_values / self.ny)
+        
+        # g_j controls the vertical offset - extended range
+        g_j = 2.0 * j_values / self.ny - 1.0
         
         # Generate circles in stereographic plane
         j_curves = []
@@ -67,12 +70,49 @@ class ReferenceORCAGridGenerator:
         x_j = j_curve[:, 0]
         y_j = j_curve[:, 1]
         
-        # Compute derivatives with error handling
+        # Compute derivatives with robust error handling
         try:
-            dy_dx = np.gradient(y_j, x_j)
-            dx_dy = np.gradient(x_j, y_j)
-        except:
-            print("⚠️ Derivative calculation failed, using fallback")
+            # Use finite differences for more robust derivative calculation
+            if len(x_j) < 2:
+                print("⚠️ Insufficient points for derivative calculation")
+                return None, None
+            
+            # Central differences for interior points
+            dy_dx = np.zeros_like(y_j)
+            dx_dy = np.zeros_like(x_j)
+            
+            for i in range(1, len(x_j)-1):
+                dx = x_j[i+1] - x_j[i-1]
+                if np.abs(dx) > 1e-10:
+                    dy_dx[i] = (y_j[i+1] - y_j[i-1]) / dx
+                    dx_dy[i] = (x_j[i+1] - x_j[i-1]) / dx
+                else:
+                    dy_dx[i] = 0.0
+                    dx_dy[i] = 0.0
+            
+            # Forward/backward differences for endpoints
+            if len(x_j) > 1:
+                dx_forward = x_j[1] - x_j[0]
+                dx_backward = x_j[-1] - x_j[-2]
+                
+                if np.abs(dx_forward) > 1e-10:
+                    dy_dx[0] = (y_j[1] - y_j[0]) / dx_forward
+                    dx_dy[0] = (x_j[1] - x_j[0]) / dx_forward
+                
+                if np.abs(dx_backward) > 1e-10:
+                    dy_dx[-1] = (y_j[-1] - y_j[-2]) / dx_backward
+                    dx_dy[-1] = (x_j[-1] - x_j[-2]) / dx_backward
+            
+            # Handle edge cases
+            dy_dx = np.nan_to_num(dy_dx, nan=0.0, posinf=1e10, neginf=-1e10)
+            dx_dy = np.nan_to_num(dx_dy, nan=0.0, posinf=1e10, neginf=-1e10)
+            
+            # Ensure non-zero values
+            dy_dx = np.where(np.abs(dy_dx) < 1e-10, np.sign(dy_dx) * 1e-10, dy_dx)
+            dx_dy = np.where(np.abs(dx_dy) < 1e-10, np.sign(dx_dy) * 1e-10, dx_dy)
+            
+        except Exception as e:
+            print(f"⚠️ Derivative calculation failed: {e}")
             return None, None
         
         # Right-hand side of ODE: dy/dx = -y' / x'
@@ -88,14 +128,15 @@ class ReferenceORCAGridGenerator:
                 
                 result = -y_prime / x_prime
                 return result if np.isfinite(result) else 0.0
-            except:
+            except Exception as e:
+                print(f"⚠️ ODE function error: {e}")
                 return 0.0
         
         # Initial condition: start at first point of J-curve
         x0 = x_j[0]
         y0 = y_j[0]
         
-        # Solve ODE along x
+        # Solve ODE along x with more robust parameters
         try:
             solution = solve_ivp(
                 ode_func,
@@ -103,7 +144,8 @@ class ReferenceORCAGridGenerator:
                 [y0],
                 method='RK45',
                 rtol=1e-6,
-                atol=1e-8
+                atol=1e-8,
+                dense_output=True
             )
             
             if solution.success:
@@ -150,6 +192,9 @@ class ReferenceORCAGridGenerator:
         lat = 90 - np.rad2deg(c)
         lon = np.rad2deg(np.arctan2(y, x))
         
+        # Ensure longitude is in range [-180, 180]
+        lon = (lon + 180) % 360 - 180
+        
         return lat, lon
     
     def generate_grid(self):
@@ -166,11 +211,20 @@ class ReferenceORCAGridGenerator:
         i_curves = self.generate_i_curves(j_curves)
         print(f"✅ Generated {len(i_curves)} I-curves")
         
-        # Step 3: Project to sphere
-        lat, lon = self.project_to_sphere(i_curves[0])
+        # Step 3: Project to sphere for all I-curves
+        all_lat = []
+        all_lon = []
+        
+        for i_curve in i_curves:
+            lat, lon = self.project_to_sphere(i_curve)
+            all_lat.append(lat)
+            all_lon.append(lon)
+        
         print(f"✅ Projected to spherical coordinates")
+        print(f"Latitude range: {np.min(all_lat):.2f} to {np.max(all_lat):.2f}")
+        print(f"Longitude range: {np.min(all_lon):.2f} to {np.max(all_lon):.2f}")
         
         return {
-            'nav_lat': lat,
-            'nav_lon': lon
+            'nav_lat': np.array(all_lat),
+            'nav_lon': np.array(all_lon)
         }

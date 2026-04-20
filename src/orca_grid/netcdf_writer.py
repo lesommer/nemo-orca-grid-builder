@@ -168,8 +168,16 @@ class NEMONetCDFWriter:
         # Horizontal coordinates (T, U, V, F points)
         for point_type in ['t', 'u', 'v', 'f']:
             if f'glam{point_type}' in grid_data and f'gphi{point_type}' in grid_data:
-                ds[f'glam{point_type}'] = (('t', 'y', 'x'), grid_data[f'glam{point_type}'])
-                ds[f'gphi{point_type}'] = (('t', 'y', 'x'), grid_data[f'gphi{point_type}'])
+                # Ensure data has time dimension
+                glam_data = grid_data[f'glam{point_type}']
+                gphi_data = grid_data[f'gphi{point_type}']
+                
+                if glam_data.ndim == 2:
+                    glam_data = glam_data[np.newaxis, :, :]
+                    gphi_data = gphi_data[np.newaxis, :, :]
+                
+                ds[f'glam{point_type}'] = (('t', 'y', 'x'), glam_data)
+                ds[f'gphi{point_type}'] = (('t', 'y', 'x'), gphi_data)
                 ds[f'glam{point_type}'].attrs['units'] = 'degrees_east'
                 ds[f'gphi{point_type}'].attrs['units'] = 'degrees_north'
             else:

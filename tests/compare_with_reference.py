@@ -143,9 +143,16 @@ def main():
     # Generate a test grid first
     print("🔧 Generating test grid...")
     try:
-        from orca_grid import ORCAGridBuilder
-        builder = ORCAGridBuilder(resolution="1deg")
-        builder.write_netcdf("test_grid.nc")
+        from orca_grid.grid_generator import ORCAGridGenerator
+        from orca_grid.netcdf_writer import NEMONetCDFWriter
+        
+        # Generate grid
+        gen = ORCAGridGenerator('1deg')
+        result = gen.generate_spherical_grid()
+        
+        # Write to NetCDF
+        writer = NEMONetCDFWriter('1deg')
+        writer.write_netcdf(result, "test_grid.nc")
         print("✅ Test grid generated: test_grid.nc")
     except Exception as e:
         print(f"❌ Could not generate test grid: {e}")
