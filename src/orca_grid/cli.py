@@ -3,38 +3,59 @@
 Command-line interface for ORCA Grid Builder.
 
 Usage:
-    python -m orca_grid [resolution] [output_file]
+    python -m orca_grid [resolution] [output_file] [--ref PATH]
 
 Examples:
     python -m orca_grid 2deg domain_cfg.nc
-    python -m orca_grid 1deg my_grid.nc
+    python -m orca_grid 1deg my_grid.nc --ref data/domain_cfg.nc
 """
 
+import argparse
 import sys
-from .grid_builder import ORCAGridBuilder
+
+from .grid_builder import RESOLUTION_PARAMS
 
 
 def main():
-    resolution = "2deg"
-    output_file = "domain_cfg.nc"
+    parser = argparse.ArgumentParser(
+        description="Generate NEMO-compliant ORCA horizontal grid files",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=f"Available resolutions: {', '.join(RESOLUTION_PARAMS.keys())}",
+    )
+    parser.add_argument(
+        "resolution",
+        nargs="?",
+        default="2deg",
+        choices=list(RESOLUTION_PARAMS.keys()),
+        help="Grid resolution (default: 2deg)",
+    )
+    parser.add_argument(
+        "output",
+        nargs="?",
+        default="domain_cfg.nc",
+        help="Output NetCDF file path (default: domain_cfg.nc)",
+    )
+    parser.add_argument(
+        "--ref",
+        default=None,
+        help="Path to reference NEMO domain_cfg.nc file",
+    )
 
-    args = sys.argv[1:]
-    for i, arg in enumerate(args):
-        if arg in ["2deg", "1deg", "0.5deg", "0.25deg", "1/12deg"]:
-            resolution = arg
-        elif arg.endswith(".nc"):
-            output_file = arg
-        elif i == 0:
-            resolution = arg
-        elif i == 1:
-            output_file = arg
+    args = parser.parse_args()
 
-    print(f"Generating ORCA grid at {resolution} resolution...")
+    from .grid_builder import ORCAGridBuilder
 
-    builder = ORCAGridBuilder(resolution=resolution)
-    builder.generate_and_write(output_file)
+    print(f"Generating ORCA grid at {args.resolution} resolution...")
 
-    print(f"Successfully created {output_file}")
+    builder = ORCAGridBuilder(resolution=args.resolution)
+
+    try:
+        builder.generate_and_write(args.output, ref_path=args.ref)
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Successfully created {args.output}")
 
 
 if __name__ == "__main__":
