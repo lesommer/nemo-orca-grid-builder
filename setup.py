@@ -22,13 +22,10 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "numpy>=1.19.0",
+        "scipy>=1.7.0",
         "xarray>=0.16.0",
-        "matplotlib>=3.3.0",
+        "netCDF4>=1.5.7",
     ],
-    extras_require={
-        'netcdf': ["netCDF4>=1.5.7"],
-        'complete': ["netCDF4>=1.5.7"],
-    },
     entry_points={
         "console_scripts": [
             "orca-grid=orca_grid.cli:main",

@@ -1,44 +1,41 @@
 #!/usr/bin/env python3
 """
-Command-line interface for ORCA grid builder.
+Command-line interface for ORCA Grid Builder.
 
 Usage:
     python -m orca_grid [resolution] [output_file]
-    
+
 Examples:
-    python -m orca_grid 1deg domain_cfg.nc
-    python -m orca_grid 0.5deg my_grid.nc
+    python -m orca_grid 2deg domain_cfg.nc
+    python -m orca_grid 1deg my_grid.nc
 """
 
 import sys
-from .grid_generator import ORCAGridGenerator as ORCAGridBuilder
+from .grid_builder import ORCAGridBuilder
+
 
 def main():
-    # Parse command line arguments
-    resolution = "1deg"  # Default resolution
-    output_file = "domain_cfg.nc"  # Default output
-    
-    # Simple argument parsing
+    resolution = "2deg"
+    output_file = "domain_cfg.nc"
+
     args = sys.argv[1:]
-    
     for i, arg in enumerate(args):
-        if arg in ['1deg', '0.5deg', '0.25deg']:
+        if arg in ["2deg", "1deg", "0.5deg", "0.25deg", "1/12deg"]:
             resolution = arg
-        elif arg.endswith('.nc'):
+        elif arg.endswith(".nc"):
             output_file = arg
         elif i == 0:
             resolution = arg
         elif i == 1:
             output_file = arg
-    
-    print(f"Generating ORCA grid at {resolution} resolution using CPU...")
-    
-    # Create and run grid builder
+
+    print(f"Generating ORCA grid at {resolution} resolution...")
+
     builder = ORCAGridBuilder(resolution=resolution)
-    result = builder.write_netcdf(output_file)
-    
-    print(f"Successfully created {result}")
-    print("Grid generation complete using CPU!")
+    builder.generate_and_write(output_file)
+
+    print(f"Successfully created {output_file}")
+
 
 if __name__ == "__main__":
     main()
