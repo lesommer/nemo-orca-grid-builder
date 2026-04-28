@@ -150,6 +150,54 @@ class TestStereographicProjection:
                 assert lon_diff < 1e-10, f"lon mismatch at ({lon},{lat})"
 
 
+class TestAnalyticalMode:
+    """Tests for analytical grid generation mode."""
+
+    @pytest.fixture(scope="class")
+    def grid(self):
+        from orca_grid import ORCAGridBuilder
+        builder = ORCAGridBuilder("2deg")
+        return builder.generate_grid(mode="analytical")
+
+    @pytest.fixture(scope="class")
+    def ref(self):
+        return _load_ref(ORCA2_REF)
+
+    def test_coordinates_match(self, grid, ref):
+        for v in ["glamt", "gphit"]:
+            err = np.max(np.abs(grid[v] - ref[v]))
+            assert err < 1e-6, f"{v}: max_abs_error={err:.2e}"
+        for v in ["glamu", "gphiu", "glamv", "gphiv", "glamf", "gphif"]:
+            a, b = grid[v], ref[v]
+            if "glam" in v:
+                diff = np.abs((a - b + 180) % 360 - 180)
+            else:
+                diff = np.abs(a - b)
+            median_err = np.median(diff)
+            assert median_err < 0.01, f"{v}: median_abs_error={median_err:.2e}"
+
+    def test_coriolis_match(self, grid, ref):
+        for v in ["ff_t"]:
+            err = np.max(np.abs(grid[v] - ref[v]))
+            assert err < 1e-6, f"{v}: max_abs_error={err:.2e}"
+        for v in ["ff_f"]:
+            err = np.max(np.abs(grid[v] - ref[v]))
+            assert err < 1e-4, f"{v}: max_abs_error={err:.2e}"
+
+    def test_scale_factors_reasonable(self, grid, ref):
+        for v in ["e1t", "e2t", "e1u", "e2u", "e1v", "e2v", "e1f", "e2f"]:
+            mask = ref[v] > 100
+            if mask.sum() > 0:
+                rel_err = np.median(np.abs((grid[v][mask] - ref[v][mask]) / ref[v][mask])) * 100
+                assert rel_err < 1.0, f"{v}: median rel error={rel_err:.2f}%"
+
+    def test_sh_half_rays(self, grid):
+        gphit = grid["gphit"]
+        for j in range(73):
+            lats = gphit[j, :]
+            assert np.allclose(lats, lats[0], atol=0.01), f"SH row {j} not constant lat"
+
+
 class TestNetCDFOutput:
     """Tests for NetCDF output compliance."""
 

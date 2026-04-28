@@ -231,6 +231,109 @@ def compute_scale_factors_stereo(x_stereo, y_stereo, R=R_EARTH):
     return e1, e2
 
 
+def generate_sh_half_rays(f_arr, h_values_rad, jeq):
+    """
+    Generate Southern Hemisphere I-curves as half-rays from the origin.
+
+    In the SH (j < jeq), g = -f and the J-curves are circles centered
+    at the origin with radius f(j). The I-curves are simply half-rays
+    from the origin at angles h(i).
+
+    Returns (x_grid, y_grid) for rows 0..jeq-1.
+    """
+    ny_sh = jeq
+    nx = len(h_values_rad)
+    f_sh = f_arr[:ny_sh]
+    x_grid = np.outer(f_sh, np.cos(h_values_rad))
+    y_grid = np.outer(f_sh, np.sin(h_values_rad))
+    return x_grid, y_grid
+
+
+def generate_grid_from_coefficients(ref_path):
+    """
+    Generate an ORCA grid from recovered f/g coefficients and reference
+    stereographic coordinates.
+
+    Pipeline:
+    1. Load reference and recover stereographic coordinates
+    2. Southern Hemisphere: half-ray I-curves (analytical, exact)
+    3. Northern Hemisphere: use reference stereographic coordinates
+       (the NH circles are displaced from the y-axis, making the
+       simple ODE from Eq. 2 inaccurate without displacement correction)
+    4. Project to geographic coordinates
+    5. Compute staggered grid in stereographic plane
+    6. Compute scale factors from conformal metric
+    7. Compute Coriolis parameter
+
+    Args:
+        ref_path: Path to a NEMO domain_cfg.nc reference file.
+
+    Returns:
+        Dict with 18 horizontal grid variables as 2D numpy arrays.
+    """
+    ref = load_reference_grid(ref_path)
+
+    x_stereo_t = ref["_x_stereo"]
+    y_stereo_t = ref["_y_stereo"]
+    f_arr = ref["_f_arr"]
+    g_arr = ref["_g_arr"]
+    eq_j = ref["_eq_j"]
+
+    ny, nx = x_stereo_t.shape
+
+    # SH: analytical half-rays (verified exact)
+    h_values_rad = np.radians(ref["glamt"][eq_j, :])
+    x_sh, y_sh = generate_sh_half_rays(f_arr, h_values_rad, eq_j)
+
+    # NH + equator + fold: use reference stereographic coordinates
+    x_grid = x_stereo_t.copy()
+    y_grid = y_stereo_t.copy()
+
+    # Override SH with analytical results (should be identical)
+    x_grid[:eq_j, :] = x_sh
+    y_grid[:eq_j, :] = y_sh
+
+    # Staggered coordinates in stereographic plane
+    x_u, y_u, x_v, y_v, x_f, y_f = compute_staggered_coords_stereo(
+        x_grid, y_grid
+    )
+
+    # Project to geographic
+    lon_t, lat_t = forward_stereographic(x_grid, y_grid)
+    lon_u, lat_u = forward_stereographic(x_u, y_u)
+    lon_v, lat_v = forward_stereographic(x_v, y_v)
+    lon_f, lat_f = forward_stereographic(x_f, y_f)
+
+    glamt = (lon_t + 180) % 360 - 180
+    gphit = lat_t
+    glamu = (lon_u + 180) % 360 - 180
+    gphiu = lat_u
+    glamv = (lon_v + 180) % 360 - 180
+    gphiv = lat_v
+    glamf = (lon_f + 180) % 360 - 180
+    gphif = lat_f
+
+    # Scale factors from conformal metric
+    e1t, e2t = compute_scale_factors_stereo(x_grid, y_grid)
+    e1u, e2u = compute_scale_factors_stereo(x_u, y_u)
+    e1v, e2v = compute_scale_factors_stereo(x_v, y_v)
+    e1f, e2f = compute_scale_factors_stereo(x_f, y_f)
+
+    # Coriolis
+    ff_t = 2.0 * OMEGA * np.sin(np.radians(gphit))
+    ff_f = 2.0 * OMEGA * np.sin(np.radians(gphif))
+
+    return {
+        "glamt": glamt, "gphit": gphit,
+        "glamu": glamu, "gphiu": gphiu,
+        "glamv": glamv, "gphiv": gphiv,
+        "glamf": glamf, "gphif": gphif,
+        "e1t": e1t, "e1u": e1u, "e1v": e1v, "e1f": e1f,
+        "e2t": e2t, "e2u": e2u, "e2v": e2v, "e2f": e2f,
+        "ff_t": ff_t, "ff_f": ff_f,
+    }
+
+
 class ORCAGridBuilder:
     """
     Generate ORCA-family global ocean grids.
@@ -239,9 +342,13 @@ class ORCAGridBuilder:
     circles (J-curves) in the north stereographic polar plane and their
     orthogonal trajectories (I-curves).
 
-    Currently supports loading from NEMO reference NetCDF files for
-    exact reproduction.  Analytical grid generation from the ODE (Eq. 2)
-    is planned for a future release.
+    Two generation modes:
+      - "reference": load all variables directly from a NEMO reference
+        file (exact reproduction, default)
+      - "analytical": generate from recovered f/g coefficients with
+        analytical SH half-rays and stereographic metric (partial
+        self-generation; NH still uses reference stereographic coords
+        because the circles are displaced from the y-axis)
     """
 
     def __init__(self, resolution="2deg"):
@@ -266,13 +373,16 @@ class ORCAGridBuilder:
             raise FileNotFoundError(f"Reference file not found: {path}")
         return str(path)
 
-    def generate_grid(self, ref_path=None):
+    def generate_grid(self, ref_path=None, mode="reference"):
         """
-        Generate the full ORCA horizontal grid from a reference file.
+        Generate the full ORCA horizontal grid.
 
         Args:
             ref_path: Path to a NEMO domain_cfg.nc reference file.
                 If None, uses the default reference for this resolution.
+            mode: "reference" for exact reproduction from reference data,
+                "analytical" for generation from f/g coefficients with
+                analytical SH computation and stereographic metric.
 
         Returns:
             Dict with 18 horizontal grid variables as 2D numpy arrays.
@@ -280,25 +390,27 @@ class ORCAGridBuilder:
         if ref_path is None:
             ref_path = self._ref_path()
 
-        ref = load_reference_grid(ref_path)
+        if mode == "reference":
+            ref = load_reference_grid(ref_path)
+            grid_data = {}
+            for v in HORIZONTAL_VARS:
+                if v in ref:
+                    grid_data[v] = ref[v].copy()
+            missing = [v for v in HORIZONTAL_VARS if v not in grid_data]
+            if missing:
+                raise ValueError(f"Reference file missing variables: {missing}")
+            return grid_data
 
-        grid_data = {}
-        for v in HORIZONTAL_VARS:
-            if v in ref:
-                grid_data[v] = ref[v].copy()
+        elif mode == "analytical":
+            return generate_grid_from_coefficients(ref_path)
 
-        missing = [v for v in HORIZONTAL_VARS if v not in grid_data]
-        if missing:
-            raise ValueError(
-                f"Reference file missing variables: {missing}"
-            )
+        else:
+            raise ValueError(f"Unknown mode: {mode}. Use 'reference' or 'analytical'.")
 
-        return grid_data
-
-    def generate_and_write(self, output_path, ref_path=None):
+    def generate_and_write(self, output_path, ref_path=None, mode="reference"):
         """Generate the grid and write to a NEMO5-compliant NetCDF file."""
         from .netcdf_writer import write_netcdf
 
-        grid_data = self.generate_grid(ref_path=ref_path)
+        grid_data = self.generate_grid(ref_path=ref_path, mode=mode)
         write_netcdf(grid_data, output_path, self.params)
         return output_path
