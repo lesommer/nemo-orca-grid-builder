@@ -221,3 +221,6 @@ output/validation/*.json
 # Agent workspace files
 agents/
 .opencode/
+
+# Temporary local files
+tmp/
