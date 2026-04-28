@@ -220,3 +220,4 @@ output/validation/*.json
 
 # Agent workspace files
 agents/
+.opencode/
