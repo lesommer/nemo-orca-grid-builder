@@ -224,3 +224,8 @@ agents/
 
 # Temporary local files
 tmp/
+
+# Notebook and image artifacts
+Untitled.ipynb
+test.ipynb
+tests/*.png
