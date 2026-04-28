@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# netcdf files
+*.nc
+
+# pdf files
+*.pdf
+
 # Distribution / packaging
 .Python
 build/
@@ -211,3 +217,6 @@ __marimo__/
 output/grids/*.nc
 data/domain_cfg.nc
 output/validation/*.json
+
+# Agent workspace files
+agents/
