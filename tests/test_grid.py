@@ -102,7 +102,7 @@ class TestORCA2Fitted:
         return _load_ref(ORCA2_REF)
 
     def test_shape(self, grid):
-        assert grid["glamt"].shape == (148, 182)
+        assert grid["glamt"].shape == (149, 182)
 
     def test_equator(self, grid):
         gphit = grid["gphit"]
@@ -128,14 +128,14 @@ class TestORCA2Fitted:
         assert grid["ff_t"].max() <= 2 * 7.2921e-5
 
     def test_sh_coordinates(self, grid, ref):
-        gphit = grid["gphit"][:, :180]
+        gphit = grid["gphit"][:148, :180]
         ref_gphit = ref["gphit"]
         eq_j = 73
         sh_err = np.max(np.abs(gphit[:eq_j, :] - ref_gphit[:eq_j, :]))
         assert sh_err < 1e-4, f"SH latitude error too large: {sh_err}"
 
     def test_dipolar_nh_coordinates(self, grid, ref):
-        gphit = grid["gphit"][:, :180]
+        gphit = grid["gphit"][:148, :180]
         ref_gphit = ref["gphit"]
         eq_j = 73
         dipolar_err = np.max(np.abs(gphit[eq_j:eq_j+20, :] - ref_gphit[eq_j:eq_j+20, :]))
@@ -192,12 +192,18 @@ class TestORCA1Fitted:
         return builder.generate_grid(fg_source="fitted")
 
     def test_shape(self, grid):
-        assert grid["glamt"].shape == (331, 362)
+        assert grid["glamt"].shape == (332, 362)
 
     def test_latitude_range(self, grid):
         gphit = grid["gphit"]
         assert gphit.min() >= -91
         assert gphit.max() <= 91
+
+    def test_accuracy_vs_reference(self, grid):
+        ref = _load_ref(ORCA1_REF)
+        gen_lat = grid["gphit"][:331, :360]
+        lat_err = np.max(np.abs(gen_lat - ref["gphit"]))
+        assert lat_err < 0.05, f"ORCA1 fitted lat error too large: {lat_err:.4f}°"
 
 
 class TestNetCDFOutput:
