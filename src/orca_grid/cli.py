@@ -3,11 +3,11 @@
 Command-line interface for ORCA Grid Builder.
 
 Usage:
-    python -m orca_grid [resolution] [output_file] [--fg-source SOURCE] [--ref PATH]
+    python -m orca_grid [resolution] [output_file] [--fg-source SOURCE] [--fg-file PATH]
 
 Examples:
     python -m orca_grid 2deg domain_cfg.nc
-    python -m orca_grid 2deg domain_cfg.nc --fg-source fitted --ref data/ORCA_R2_zps_domcfg.nc
+    python -m orca_grid 2deg domain_cfg.nc --fg-source fitted --fg-file data/ORCA_R2_zps_domcfg.nc
 """
 
 import argparse
@@ -25,7 +25,8 @@ def main():
             f"Available resolutions: {', '.join(RESOLUTION_PARAMS.keys())}\n\n"
             "fg-source modes:\n"
             "  paper   - Use log-cosh parameterization from the paper (default)\n"
-            "  fitted  - Recover f/g from a reference NEMO domain_cfg file"
+            "  fitted  - Use coordinates from a reference NEMO domain_cfg file\n"
+            "             (exact match with reference grid)"
         ),
     )
     parser.add_argument(
@@ -48,9 +49,10 @@ def main():
         help="Method for obtaining f/g coefficients (default: paper)",
     )
     parser.add_argument(
-        "--ref",
+        "--fg-file",
         default=None,
-        help="Path to reference NEMO domain_cfg.nc file (required for --fg-source fitted)",
+        help="Path to reference NEMO domain_cfg.nc file (required for --fg-source fitted "
+             "if no default is configured for the resolution)",
     )
 
     args = parser.parse_args()
@@ -64,7 +66,7 @@ def main():
 
     try:
         builder.generate_and_write(
-            args.output, ref_path=args.ref, fg_source=args.fg_source
+            args.output, ref_path=args.fg_file, fg_source=args.fg_source
         )
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
